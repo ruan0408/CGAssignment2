@@ -7,9 +7,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 
 import org.json.JSONArray;
@@ -41,7 +43,8 @@ public class Terrain {
         myAltitude = new double[width][depth];
         myTrees = new ArrayList<Tree>();
         myRoads = new ArrayList<Road>();
-        mySunlight = new float[3];
+        mySunlight = new float[4];
+        mySunlight[3] = 0; //directional light
     }
     
     public Terrain(Dimension size) {
@@ -160,6 +163,41 @@ public class Terrain {
     public void addRoad(double width, double[] spine) {
         Road road = new Road(width, spine);
         myRoads.add(road);        
+    }
+
+    public void draw(GL2 gl) {
+        drawTerrain(gl);
+    }
+
+    private void drawTerrain(GL2 gl) {
+        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+        float[] green = {0.0f, 1.0f, 0.0f, 1.0f};
+        float[] a, b, c, d;
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, green, 0);
+
+        gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
+        for (int z = 0 ; z < size().height-1; z++)
+            for (int x = 0; x < size().width-1; x++) {
+                a = new float[]{x, (float)getGridAltitude(x, z), z};
+                b = new float[]{x, (float)getGridAltitude(x, z+1), z+1};
+                c = new float[]{x+1, (float)getGridAltitude(x+1, z), z};
+                d = new float[]{x+1, (float)getGridAltitude(x+1, z+1), z+1};
+
+                gl.glBegin(GL2.GL_TRIANGLES);{
+
+                    gl.glNormal3fv(MathUtils.normal(a, b, c), 0);
+                    gl.glVertex3fv(a, 0);
+                    gl.glVertex3fv(b, 0);
+                    gl.glVertex3fv(c, 0);
+
+                    gl.glNormal3fv(MathUtils.normal(b, d, c), 0);
+                    gl.glVertex3fv(b, 0);
+                    gl.glVertex3fv(d, 0);
+                    gl.glVertex3fv(c, 0);
+
+                }gl.glEnd();
+            }
+        gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
     }
 
 
