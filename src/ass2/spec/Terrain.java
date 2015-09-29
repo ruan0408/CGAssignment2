@@ -126,7 +126,7 @@ public class Terrain {
      * Get the altitude at an arbitrary point. 
      * Non-integer points should be interpolated from neighbouring grid points
      * 
-     * TO BE COMPLETED
+     * Ruan: We are using bilinear interpolation here. Check out wikipedia...
      * 
      * @param x
      * @param z
@@ -134,9 +134,12 @@ public class Terrain {
      */
     public double altitude(double x, double z) {
         double altitude = 0;
-        //TODO
-        
-        
+        int x1 = (int) x;
+        int z1 = (int) z;
+        double fxz1 = (x1+1 - x)*getGridAltitude(x1, z1) +(x-x1)*getGridAltitude(x1+1, z1);
+        double fxzPlus1 = (x1+1 - x)*getGridAltitude(x1, z1+1) +(x-x1)*getGridAltitude(x1+1, z1+1);
+
+        altitude = (z1+1 - z)*fxz1 + (z - z1)*fxzPlus1;
         return altitude;
     }
 
@@ -157,8 +160,8 @@ public class Terrain {
     /**
      * Add a road. 
      * 
-     * @param x
-     * @param z
+     * @param width
+     * @param spine
      */
     public void addRoad(double width, double[] spine) {
         Road road = new Road(width, spine);
@@ -167,7 +170,18 @@ public class Terrain {
 
     public void draw(GL2 gl) {
         drawTerrain(gl);
+        for (Tree t : trees()) t.draw(gl);
+
     }
+
+    /**
+     * Draws the terrain. Each group of 4 vertices are labeled as follows:
+     *   a -- c
+     *   |  / |
+     *   | /  |
+     *   b -- d
+     * @param gl
+     */
 
     private void drawTerrain(GL2 gl) {
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
@@ -199,6 +213,4 @@ public class Terrain {
             }
         gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
     }
-
-
 }
