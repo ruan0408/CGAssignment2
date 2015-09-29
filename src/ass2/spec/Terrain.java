@@ -184,7 +184,6 @@ public class Terrain {
      */
 
     private void drawTerrain(GL2 gl) {
-        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
         float[] green = {0.0f, 1.0f, 0.0f, 1.0f};
         float[] a, b, c, d;
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, green, 0);

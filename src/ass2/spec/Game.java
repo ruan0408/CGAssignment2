@@ -100,6 +100,8 @@ public class Game extends JFrame implements GLEventListener{
         gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();
 
+        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+
         myTerrain.draw(gl);
     }
 
