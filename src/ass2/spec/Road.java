@@ -1,5 +1,6 @@
 package ass2.spec;
 
+import javax.media.opengl.GL2;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +64,7 @@ public class Road {
         myPoints.add(x2);
         myPoints.add(y2);
         myPoints.add(x3);
-        myPoints.add(y3);        
+        myPoints.add(y3);
     }
     
     /**
@@ -113,7 +114,7 @@ public class Road {
         double[] p = new double[2];
 
         p[0] = b(0, t) * x0 + b(1, t) * x1 + b(2, t) * x2 + b(3, t) * x3;
-        p[1] = b(0, t) * y0 + b(1, t) * y1 + b(2, t) * y2 + b(3, t) * y3;        
+        p[1] = b(0, t) * y0 + b(1, t) * y1 + b(2, t) * y2 + b(3, t) * y3;
         
         return p;
     }
@@ -145,6 +146,5 @@ public class Road {
         // this should never happen
         throw new IllegalArgumentException("" + i);
     }
-
 
 }

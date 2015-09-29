@@ -171,7 +171,7 @@ public class Terrain {
     public void draw(GL2 gl) {
         drawTerrain(gl);
         for (Tree t : trees()) t.draw(gl);
-
+        for (Road r : roads()) drawRoad(gl, r);
     }
 
     /**
@@ -188,7 +188,7 @@ public class Terrain {
         float[] a, b, c, d;
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, green, 0);
 
-        gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
+        //gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
         for (int z = 0 ; z < size().height-1; z++)
             for (int x = 0; x < size().width-1; x++) {
                 a = new float[]{x, (float)getGridAltitude(x, z), z};
@@ -210,6 +210,39 @@ public class Terrain {
 
                 }gl.glEnd();
             }
-        gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
+        //gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
+    }
+
+    /**
+     * Draws a given road.
+     * Roads don't draw themselves because they need information about the terrain.
+     * This is not pretty.
+     * @param gl
+     * @param road
+     */
+    private void drawRoad(GL2 gl, Road road) {
+
+        float[] black = {0.0f, 0.0f, 0.0f, 1.0f};
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, black, 0);
+
+        double x, z;
+        gl.glBegin(GL2.GL_LINE_STRIP);
+        //gl.glBegin(GL2.GL_POINTS);
+        int numPoints = 16;
+        double tIncrement = 1.0/numPoints;
+        //double tIncrement = ((double)curve.size())/numPoints;
+        //System.out.println("numPoints " + numPoints + " " + tIncrement);
+        for(int i = 0; i < numPoints*road.size(); i++){
+            double t = i*tIncrement;
+            //System.out.println("t " + t);
+            gl.glNormal3d(0,1,0);
+            x = road.point(t)[0];
+            z = road.point(t)[1];
+            gl.glVertex3d(x, altitude(x, z), z);
+        }
+        //Connect to the final point - we just get the final control
+        //point
+        //gl.glVertex2dv(controlPoint(size()*3),0);
+        gl.glEnd();
     }
 }
