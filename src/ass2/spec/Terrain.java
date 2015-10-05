@@ -172,6 +172,7 @@ public class Terrain {
         drawTerrain(gl);
         for (Tree t : trees()) t.draw(gl);
         for (Road r : roads()) drawRoad(gl, r);
+
     }
 
     /**
@@ -221,28 +222,37 @@ public class Terrain {
      * @param road
      */
     private void drawRoad(GL2 gl, Road road) {
-
         float[] black = {0.0f, 0.0f, 0.0f, 1.0f};
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, black, 0);
-
-        double x, z;
-        gl.glBegin(GL2.GL_LINE_STRIP);
-        //gl.glBegin(GL2.GL_POINTS);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, black, 0);
+        double x, z, y, x1, z1;
+        double w = road.width()/2;
         int numPoints = 16;
         double tIncrement = 1.0/numPoints;
-        //double tIncrement = ((double)curve.size())/numPoints;
-        //System.out.println("numPoints " + numPoints + " " + tIncrement);
-        for(int i = 0; i < numPoints*road.size(); i++){
+
+        gl.glBegin(GL2.GL_QUADS);
+        for(int i = 0; i < numPoints*road.size()-1; i++){
             double t = i*tIncrement;
-            //System.out.println("t " + t);
-            gl.glNormal3d(0,1,0);
-            x = road.point(t)[0];
-            z = road.point(t)[1];
-            gl.glVertex3d(x, altitude(x, z), z);
+            double t1 = (i+1)*tIncrement;
+            double[] normal = road.normal(t);
+            double[] normal1 = road.normal(t1);
+
+            x = road.point(t)[0]; z = road.point(t)[1]; //y = altitude(x-w*normal[0], z-w*normal[1]);
+            x1 = road.point(t1)[0]; z1= road.point(t1)[1]; //y1 = altitude(x1+w-normal1[0], z1-w*normal1[1]);
+            //double y2 = altitude(x+w*normal[0], z+w*normal[1]);
+            //double y3 = altitude(x1+w*normal[0], z1+w*normal[1]);
+            // The altitude of the spine at t is the altitude for the entire road.
+            // We add 0.001 to make sure the road will be on top of the terrain.
+            y = altitude(x,z) + 0.001;
+            gl.glNormal3d(0, 1, 0);
+            gl.glVertex3d(x+w*normal[0], y, z+w*normal[1]);
+            gl.glVertex3d(x-w*normal[0], y, z-w*normal[1]);
+            gl.glVertex3d(x1-w*normal1[0], y, z1-w*normal1[1]);
+            gl.glVertex3d(x1+w*normal1[0], y, z1+w*normal1[1]);
         }
-        //Connect to the final point - we just get the final control
-        //point
-        //gl.glVertex2dv(controlPoint(size()*3),0);
+        //Connect to the final point - we just get the final control point
+        //double[] endPoint = road.controlPoint(road.size()*3);
+        //gl.glVertex3d(endPoint[0], altitude(endPoint[0], endPoint[1]),endPoint[1]);
         gl.glEnd();
     }
 }

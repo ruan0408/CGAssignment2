@@ -118,6 +118,39 @@ public class Road {
         
         return p;
     }
+
+    /**
+     * Get the unit normal vector at t
+     * @param t
+     * @return
+     */
+    public double[] normal(double t) {
+        double[] tan = tangent(t);
+        return MathUtils.normal2d(tan);
+    }
+
+    private double[] tangent(double t) {
+        int i = (int)Math.floor(t);
+        t = t - i;
+
+        i *= 6;
+
+        double x0 = myPoints.get(i++);
+        double y0 = myPoints.get(i++);
+        double x1 = myPoints.get(i++);
+        double y1 = myPoints.get(i++);
+        double x2 = myPoints.get(i++);
+        double y2 = myPoints.get(i++);
+        double x3 = myPoints.get(i++);
+        double y3 = myPoints.get(i++);
+
+        double[] tan = new double[2];
+
+        tan[0] = 3*(b(0, t)*(x1-x0) + b(1, t)*(x2-x1) + b(2, t)*(x3-x2));
+        tan[1] = 3*(b(0, t)*(y1-y0) + b(1, t)*(y2-y1) + b(2, t)*(y3-y2));
+
+        return tan;
+    }
     
     /**
      * Calculate the Bezier coefficients
