@@ -41,4 +41,14 @@ public class MathUtils {
 
         return normalized;
     }
+
+    /**
+     * Normalise an angle to the range (-180, 180]
+     *
+     * @param angle
+     * @return
+     */
+    static public double normaliseAngle(double angle) {
+        return ((angle + 180.0) % 360.0 + 360.0) % 360.0 - 180.0;
+    }
 }

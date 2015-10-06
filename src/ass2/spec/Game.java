@@ -25,8 +25,7 @@ public class Game extends JFrame implements GLEventListener{
     public Game(Terrain terrain) {
     	super("Assignment 2");
         myTerrain = terrain;
-        camera = new Camera();
-   
+        camera = new Camera(180);
     }
     
     /** 
@@ -81,14 +80,6 @@ public class Game extends JFrame implements GLEventListener{
         // normalise normals (!)
         // this is necessary to make lighting work properly
         gl.glEnable(GL2.GL_NORMALIZE);
-
-//        gl.glMatrixMode(GL2.GL_MODELVIEW);
-//        gl.glLoadIdentity();
-//        gl.glRotated(180,0,1,0);
-
-//        GLU glu = new GLU();
-//        glu.gluPerspective(60, 1, 1, 20); //TODO: use same aspect ratio as viewport
-//        glu.gluLookAt(0, 0, 0, 0, 0, -1, 0, 0, 1);
 	}
 
 	@Override
@@ -100,7 +91,7 @@ public class Game extends JFrame implements GLEventListener{
 
         GLU glu = new GLU();
         glu.gluPerspective(60, 1, 1, 20); //TODO: use same aspect ratio as viewport
-        glu.gluLookAt(0, 5, -5, 3, 0, 0, 0, 0, 1);
+        //glu.gluLookAt(0, 5, -5, 3, 0, 0, 0, 0, 1);
 
 	}
 
@@ -114,16 +105,17 @@ public class Game extends JFrame implements GLEventListener{
         gl.glClearColor(1, 1, 1, 0);
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
 
-        gl.glTranslated(0, 0, -camera.getTranslation());
+        double[] trans = camera.getTranslation();
         gl.glRotated(-camera.getRotation(), 0, 1, 0);
+        gl.glTranslated(-trans[0], -trans[1], -trans[2]);
 
         myTerrain.draw(gl);
-        Tree t = new Tree(0,0,0);
-        Tree t1 = new Tree(0,0,1);
-        Tree t2 = new Tree(0,0,-1);
-        t.draw(gl);
-        t1.draw(gl);
-        t2.draw(gl);
+//        Tree t = new Tree(0,0,0);
+//        Tree t1 = new Tree(0,0,1);
+//        Tree t2 = new Tree(0,0,-1);
+//        t.draw(gl);
+//        t1.draw(gl);
+//        t2.draw(gl);
     }
 
     @Override

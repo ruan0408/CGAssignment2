@@ -8,15 +8,21 @@ import java.awt.event.KeyListener;
  */
 public class Camera implements KeyListener {
 
-    private double translation; // Translation is always regarding the z axis
+    private final double ANGLE_STEP = 5; //8 degrees per key stroke
+    private final double MOV_STEP = 0.4; //0.4 units per key stroke
+    private double[] translation; // Translation is always regarding the z axis
     private double rotation;    // Rotation is always over the y axis.
 
-    public Camera() {
-        rotation = 0;
-        translation = 0;
+    /**
+     * Create a camera rotated by angle degrees
+     * @param angle
+     */
+    public Camera(double angle) {
+        rotation = angle;
+        translation = new double[]{0, 0, 0};
     }
 
-    public double getTranslation() {
+    public double[] getTranslation() {
         return translation;
     }
 
@@ -28,16 +34,18 @@ public class Camera implements KeyListener {
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:
-                translation += 0.1;
+                translation[0] += -MOV_STEP*Math.sin(Math.toRadians(rotation));
+                translation[2] += -MOV_STEP*Math.cos(Math.toRadians(rotation));
                 break;
             case KeyEvent.VK_DOWN:
-                translation += -0.1;
+                translation[0] += MOV_STEP*Math.sin(Math.toRadians(rotation));
+                translation[2] += MOV_STEP*Math.cos(Math.toRadians(rotation));
                 break;
             case KeyEvent.VK_LEFT:
-                rotation += 1;
+                rotation = MathUtils.normaliseAngle(rotation+ANGLE_STEP);
                 break;
             case KeyEvent.VK_RIGHT:
-                rotation += -1;
+                rotation = MathUtils.normaliseAngle(rotation-ANGLE_STEP);
                 break;
             default:
                 break;

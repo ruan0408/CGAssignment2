@@ -136,11 +136,15 @@ public class Terrain {
         double altitude = 0;
         int x1 = (int) x;
         int z1 = (int) z;
-        double fxz1 = (x1+1 - x)*getGridAltitude(x1, z1) +(x-x1)*getGridAltitude(x1+1, z1);
-        double fxzPlus1 = (x1+1 - x)*getGridAltitude(x1, z1+1) +(x-x1)*getGridAltitude(x1+1, z1+1);
-
-        altitude = (z1+1 - z)*fxz1 + (z - z1)*fxzPlus1;
-        return altitude;
+        try {
+            double fxz1 = (x1+1 - x)*getGridAltitude(x1, z1) +(x-x1)*getGridAltitude(x1+1, z1);
+            double fxzPlus1 = (x1+1 - x)*getGridAltitude(x1, z1+1) +(x-x1)*getGridAltitude(x1+1, z1+1);
+            altitude = (z1+1 - z)*fxz1 + (z - z1)*fxzPlus1;
+        } catch (ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace();
+        } finally {
+            return altitude;
+        }
     }
 
     /**
@@ -189,7 +193,6 @@ public class Terrain {
         float[] a, b, c, d;
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, green, 0);
 
-        //gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
         for (int z = 0 ; z < size().height-1; z++)
             for (int x = 0; x < size().width-1; x++) {
                 a = new float[]{x, (float)getGridAltitude(x, z), z};
@@ -211,7 +214,6 @@ public class Terrain {
 
                 }gl.glEnd();
             }
-        //gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
     }
 
     /**
