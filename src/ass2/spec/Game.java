@@ -25,7 +25,7 @@ public class Game extends JFrame implements GLEventListener{
     public Game(Terrain terrain) {
     	super("Assignment 2");
         myTerrain = terrain;
-        camera = new Camera(180);
+        camera = new Camera(180, terrain);
     }
     
     /** 
@@ -90,7 +90,7 @@ public class Game extends JFrame implements GLEventListener{
         gl.glLoadIdentity();
 
         GLU glu = new GLU();
-        glu.gluPerspective(60, 1, 1, 20); //TODO: use same aspect ratio as viewport
+        glu.gluPerspective(60, 1, 0.01, 20); //TODO: use same aspect ratio as viewport
         //glu.gluLookAt(0, 5, -5, 3, 0, 0, 0, 0, 1);
 
 	}

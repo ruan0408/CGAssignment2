@@ -142,6 +142,7 @@ public class Terrain {
             altitude = (z1+1 - z)*fxz1 + (z - z1)*fxzPlus1;
         } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
+            altitude = 0;
         } finally {
             return altitude;
         }

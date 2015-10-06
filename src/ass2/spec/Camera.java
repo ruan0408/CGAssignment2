@@ -10,16 +10,19 @@ public class Camera implements KeyListener {
 
     private final double ANGLE_STEP = 5; //8 degrees per key stroke
     private final double MOV_STEP = 0.4; //0.4 units per key stroke
+
     private double[] translation; // Translation is always regarding the z axis
     private double rotation;    // Rotation is always over the y axis.
+    private Terrain terrain;
 
     /**
      * Create a camera rotated by angle degrees
      * @param angle
      */
-    public Camera(double angle) {
+    public Camera(double angle, Terrain t) {
         rotation = angle;
         translation = new double[]{0, 0, 0};
+        terrain = t;
     }
 
     public double[] getTranslation() {
@@ -50,6 +53,7 @@ public class Camera implements KeyListener {
             default:
                 break;
         }
+        translation[1] = terrain.altitude(translation[0], translation[2])+0.1;
     }
 
     @Override
