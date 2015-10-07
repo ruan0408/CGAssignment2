@@ -1,22 +1,9 @@
 package ass2.spec;
 
-import java.awt.Dimension;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.FloatBuffer;
+import javax.media.opengl.GL2;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.media.opengl.GL;
-import javax.media.opengl.GL2;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
 
 /**
@@ -26,11 +13,13 @@ import org.json.JSONTokener;
  */
 public class Terrain {
 
+    static MyTexture texture;
     private Dimension mySize;
     private double[][] myAltitude;
     private List<Tree> myTrees;
     private List<Road> myRoads;
     private float[] mySunlight;
+
 
     /**
      * Create a new terrain
@@ -194,6 +183,9 @@ public class Terrain {
         float[] a, b, c, d;
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, green, 0);
 
+        // Specify how texture values combine with current surface color values.
+        gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, texture.getTextureId());
         for (int z = 0 ; z < size().height-1; z++)
             for (int x = 0; x < size().width-1; x++) {
                 a = new float[]{x, (float)getGridAltitude(x, z), z};
@@ -202,19 +194,19 @@ public class Terrain {
                 d = new float[]{x+1, (float)getGridAltitude(x+1, z+1), z+1};
 
                 gl.glBegin(GL2.GL_TRIANGLES);{
-
                     gl.glNormal3fv(MathUtils.normal(a, b, c), 0);
-                    gl.glVertex3fv(a, 0);
-                    gl.glVertex3fv(b, 0);
-                    gl.glVertex3fv(c, 0);
+                    gl.glTexCoord2d(0.0, 1.0);gl.glVertex3fv(a, 0);
+                    gl.glTexCoord2d(0.0, 0.0);gl.glVertex3fv(b, 0);
+                    gl.glTexCoord2d(1.0, 1.0);gl.glVertex3fv(c, 0);
 
                     gl.glNormal3fv(MathUtils.normal(b, d, c), 0);
-                    gl.glVertex3fv(b, 0);
-                    gl.glVertex3fv(d, 0);
-                    gl.glVertex3fv(c, 0);
+                    gl.glTexCoord2d(0.0, 0.0);gl.glVertex3fv(b, 0);
+                    gl.glTexCoord2d(1.0, 0.0);gl.glVertex3fv(d, 0);
+                    gl.glTexCoord2d(1.0, 1.0);gl.glVertex3fv(c, 0);
 
                 }gl.glEnd();
             }
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
     }
 
     /**
@@ -233,6 +225,10 @@ public class Terrain {
         int numPoints = 16;
         double tIncrement = 1.0/numPoints;
 
+        // Specify how texture values combine with current surface color values.
+        gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, Road.texture.getTextureId());
+
         gl.glBegin(GL2.GL_QUADS);
         for(int i = 0; i < numPoints*road.size()-1; i++){
             double t = i*tIncrement;
@@ -248,11 +244,12 @@ public class Terrain {
             // We add 0.001 to make sure the road will be on top of the terrain.
             y = altitude(x,z) + 0.001;
             gl.glNormal3d(0, 1, 0);
-            gl.glVertex3d(x+w*normal[0], y, z+w*normal[1]);
-            gl.glVertex3d(x-w*normal[0], y, z-w*normal[1]);
-            gl.glVertex3d(x1-w*normal1[0], y, z1-w*normal1[1]);
-            gl.glVertex3d(x1+w*normal1[0], y, z1+w*normal1[1]);
+            gl.glTexCoord2d(0.0, 0.0);gl.glVertex3d(x+w*normal[0], y, z+w*normal[1]);
+            gl.glTexCoord2d(1.0, 0.0);gl.glVertex3d(x-w*normal[0], y, z-w*normal[1]);
+            gl.glTexCoord2d(1.0, 1.0);gl.glVertex3d(x1-w*normal1[0], y, z1-w*normal1[1]);
+            gl.glTexCoord2d(0.0, 1.0);gl.glVertex3d(x1+w*normal1[0], y, z1+w*normal1[1]);
         }
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
         //Connect to the final point - we just get the final control point
         //double[] endPoint = road.controlPoint(road.size()*3);
         //gl.glVertex3d(endPoint[0], altitude(endPoint[0], endPoint[1]),endPoint[1]);

@@ -1,14 +1,13 @@
 package ass2.spec;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Arrays;
+import com.jogamp.opengl.util.FPSAnimator;
 
 import javax.media.opengl.*;
 import javax.media.opengl.awt.GLJPanel;
 import javax.media.opengl.glu.GLU;
-import javax.swing.JFrame;
-import com.jogamp.opengl.util.FPSAnimator;
+import javax.swing.*;
+import java.io.File;
+import java.io.FileNotFoundException;
 
 
 
@@ -19,6 +18,10 @@ import com.jogamp.opengl.util.FPSAnimator;
  */
 public class Game extends JFrame implements GLEventListener{
 
+    private final String TERRAIN_TEXT = "src/dirtGrass.jpg";
+    private final String TERRAIN_TEXT_EXT = "jpg";
+    private final String ROAD_TEXT = "src/dirtRoad.jpg";
+    private final String ROAD_TEXT_EXT = "jpg";
     private Terrain myTerrain;
     private Camera camera;
 
@@ -80,6 +83,10 @@ public class Game extends JFrame implements GLEventListener{
         // normalise normals (!)
         // this is necessary to make lighting work properly
         gl.glEnable(GL2.GL_NORMALIZE);
+
+        gl.glEnable(GL2.GL_TEXTURE_2D);
+        Terrain.texture = new MyTexture(gl,TERRAIN_TEXT,TERRAIN_TEXT_EXT,true);
+        Road.texture =  new MyTexture(gl,ROAD_TEXT,ROAD_TEXT_EXT,true);
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package ass2.spec;
 
-import javax.media.opengl.GL2;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +10,7 @@ import java.util.List;
  */
 public class Road {
 
+    static MyTexture texture;
     private List<Double> myPoints;
     private double myWidth;
     
