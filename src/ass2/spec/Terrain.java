@@ -192,12 +192,12 @@ public class Terrain {
      */
 
     private void drawTerrain(GL2 gl) {
-        float[] green = {0.0f, 1.0f, 0.0f, 1.0f};
+        float[] white = {1f, 1.0f, 1f, 1.0f};
         float[] a, b, c, d;
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, green, 0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white, 0);
 
         // Specify how texture values combine with current surface color values.
-        gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
+        //gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
         gl.glBindTexture(GL2.GL_TEXTURE_2D, texture.getTextureId());
         for (int z = 0 ; z < size().height-1; z++)
             for (int x = 0; x < size().width-1; x++) {
@@ -231,16 +231,16 @@ public class Terrain {
      * @param road
      */
     private void drawRoad(GL2 gl, Road road) {
-        float[] black = {0.0f, 0.0f, 0.0f, 1.0f};
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, black, 0);
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, black, 0);
+        float[] white = {1.0f, 1.0f, 1.0f, 1.0f};
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white, 0);
+        //gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, white, 0);
         double x, z, y, x1, z1;
         double w = road.width()/2;
         int numPoints = 16;
         double tIncrement = 1.0/numPoints;
 
         // Specify how texture values combine with current surface color values.
-        gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
+        //gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
         gl.glBindTexture(GL2.GL_TEXTURE_2D, Road.texture.getTextureId());
 
         gl.glBegin(GL2.GL_QUADS);

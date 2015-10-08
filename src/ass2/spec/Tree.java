@@ -40,8 +40,8 @@ public class Tree {
     }
 
     private void drawTrunk(GL2 gl) {
-        float[] brown = {0.62f, 0.32f, 0.17f, 1.0f};
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, brown, 0);
+        float[] white = {1f, 1f, 1f, 1.0f};
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white, 0);
 
         double y0 = 0;
         double y1 = TRUNK_SIZE;
@@ -76,7 +76,7 @@ public class Tree {
             }
         }gl.glEnd();
 
-        gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
+        //gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
         gl.glBindTexture(GL2.GL_TEXTURE_2D, trunkTexture.getTextureId());
 
         gl.glBegin(GL2.GL_QUADS);
@@ -112,9 +112,9 @@ public class Tree {
      * @param gl
      */
     private void drawLeaves(GL2 gl) {
-        float[] darkGreen = {0.13f, 0.54f, 0.13f, 1.0f};
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, darkGreen, 0);
-        gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
+        float[] white = {1f, 1f, 1f, 1.0f};
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white, 0);
+        //gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
         //gl.glTexParameterf(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
         //gl.glTexParameterf(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
         gl.glBindTexture(GL2.GL_TEXTURE_2D, leavesTexture.getTextureId());

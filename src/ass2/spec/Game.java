@@ -78,7 +78,7 @@ public class Game extends JFrame implements GLEventListener{
         gl.glEnable(GL2.GL_LIGHTING);
         //Turn on default light
         gl.glEnable(GL2.GL_LIGHT0);
-        float[] ambient = {0.5f, 0.5f, 0.5f, 1f};     // low ambient light
+        float[] ambient = {1f, 1f, 1f, 1f};     // low ambient light
         float[] diffuse = { 1f, 1f, 1f, 1f };        // full diffuse colour
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
