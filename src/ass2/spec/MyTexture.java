@@ -1,7 +1,7 @@
 package ass2.spec;
 
 /**
- * Created by ruan0408 on 7/10/15.
+ * Code copied from Angela's examples.
  */
 import com.jogamp.opengl.util.awt.ImageUtil;
 import com.jogamp.opengl.util.texture.TextureData;

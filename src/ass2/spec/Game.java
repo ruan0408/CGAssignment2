@@ -22,6 +22,10 @@ public class Game extends JFrame implements GLEventListener{
     private final String TERRAIN_TEXT_EXT = "jpg";
     private final String ROAD_TEXT = "src/dirtRoad.jpg";
     private final String ROAD_TEXT_EXT = "jpg";
+    private final String TRUNK_TEXT = "src/trunk.jpg";
+    private final String TRUNK_TEXT_EXT = "jpg";
+    private final String LEAVES_TEXT = "src/leaves.jpg";
+    private final String LEAVES_TEXT_EXT = "jpg";
     private Terrain myTerrain;
     private Camera camera;
 
@@ -87,6 +91,8 @@ public class Game extends JFrame implements GLEventListener{
         gl.glEnable(GL2.GL_TEXTURE_2D);
         Terrain.texture = new MyTexture(gl,TERRAIN_TEXT,TERRAIN_TEXT_EXT,true);
         Road.texture =  new MyTexture(gl,ROAD_TEXT,ROAD_TEXT_EXT,true);
+        Tree.leavesTexture =  new MyTexture(gl,LEAVES_TEXT,LEAVES_TEXT_EXT,true);
+        Tree.trunkTexture =  new MyTexture(gl, TRUNK_TEXT,TRUNK_TEXT_EXT,true);
 	}
 
 	@Override
@@ -117,12 +123,12 @@ public class Game extends JFrame implements GLEventListener{
         gl.glTranslated(-trans[0], -trans[1], -trans[2]);
 
         myTerrain.draw(gl);
-//        Tree t = new Tree(0,0,0);
-//        Tree t1 = new Tree(0,0,1);
-//        Tree t2 = new Tree(0,0,-1);
-//        t.draw(gl);
-//        t1.draw(gl);
-//        t2.draw(gl);
+        Tree t = new Tree(0,0,0);
+        Tree t1 = new Tree(0,0,1);
+        Tree t2 = new Tree(0,0,-1);
+        t.draw(gl);
+        t1.draw(gl);
+        t2.draw(gl);
     }
 
     @Override

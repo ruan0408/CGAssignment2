@@ -11,8 +11,10 @@ import javax.media.opengl.glu.GLUquadric;
  */
 public class Tree {
 
+    static MyTexture leavesTexture;
+    static MyTexture trunkTexture;
     private final double TRUNK_SIZE = 0.5;
-    private final double TRUNK_RADIUS = 0.1;
+    private final double TRUNK_RADIUS = 0.05;
     private final double SPHERE_RADIUS = 0.4;
 
     private double[] myPos;
@@ -74,10 +76,14 @@ public class Tree {
             }
         }gl.glEnd();
 
+        gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, trunkTexture.getTextureId());
+
         gl.glBegin(GL2.GL_QUADS);
         {
+            double start = 0;
             double angleStep = 2*Math.PI/slices;
-            for (int i = 0; i <= slices ; i++){
+            for (int i = 0; i < slices ; i++){
                 double a0 = i * angleStep;
                 double a1 = ((i+1) % slices) * angleStep;
 
@@ -91,13 +97,14 @@ public class Tree {
                 //Use the face normal for all 4 vertices in the quad.
                 gl.glNormal3d(-(y1 - y0) * (z1 - z0), 0, (y1 - y0) * (x1 - x0));
 
-                gl.glVertex3d(x0, y0, z0);
-                gl.glVertex3d(x1, y0, z1);
-                gl.glVertex3d(x1, y1, z1);
-                gl.glVertex3d(x0, y1, z0);
+                gl.glTexCoord2d((double)i/slices, 0.0);gl.glVertex3d(x0, y0, z0);
+                gl.glTexCoord2d((double)(i+1)/slices, 0.0);gl.glVertex3d(x1, y0, z1);
+                gl.glTexCoord2d((double)(i+1)/slices, 1.0);gl.glVertex3d(x1, y1, z1);
+                gl.glTexCoord2d((double)i/slices, 1.0);gl.glVertex3d(x0, y1, z0);
             }
         }
         gl.glEnd();
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
     }
 
     /**
@@ -107,9 +114,22 @@ public class Tree {
     private void drawLeaves(GL2 gl) {
         float[] darkGreen = {0.13f, 0.54f, 0.13f, 1.0f};
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, darkGreen, 0);
+        gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
+        //gl.glTexParameterf(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        //gl.glTexParameterf(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, leavesTexture.getTextureId());
+        gl.glMatrixMode(GL2.GL_TEXTURE);
+        gl.glLoadIdentity();
+        //gl.glRotated(0,1,0,0);
+        gl.glScalef(5, 5, 1);
         GLU glu = new GLU();
         GLUquadric quad = glu.gluNewQuadric();
+        glu.gluQuadricTexture(quad, true);
         glu.gluSphere(quad, SPHERE_RADIUS, 15, 15);
         glu.gluDeleteQuadric(quad);
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
+        gl.glLoadIdentity();
+        gl.glMatrixMode(GL2.GL_MODELVIEW);
+        gl.glLoadIdentity();
     }
 }

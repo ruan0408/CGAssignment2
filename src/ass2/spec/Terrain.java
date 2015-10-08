@@ -116,7 +116,7 @@ public class Terrain {
      * Non-integer points should be interpolated from neighbouring grid points
      * 
      * Ruan: We are using bilinear interpolation here. Check out wikipedia...
-     * 
+     * TODO: FIX THIS SHIT
      * @param x
      * @param z
      * @return
@@ -132,9 +132,8 @@ public class Terrain {
         } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
             altitude = 0;
-        } finally {
-            return altitude;
         }
+        return altitude;
     }
 
     /**
