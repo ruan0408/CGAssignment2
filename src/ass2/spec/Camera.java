@@ -54,7 +54,6 @@ public class Camera implements KeyListener {
                 break;
         }
         translation[1] = terrain.altitude(translation[0], translation[2])+0.1;
-        System.out.println(translation[1]);
     }
 
     @Override

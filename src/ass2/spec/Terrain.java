@@ -112,27 +112,41 @@ public class Terrain {
     }
 
     /**
-     * Get the altitude at an arbitrary point. 
+     * Get the altitude at an arbitrary point.
      * Non-integer points should be interpolated from neighbouring grid points
-     * 
-     * Ruan: We are using bilinear interpolation here. Check out wikipedia...
-     * TODO: FIX THIS SHIT
+     *
+     * Ruan: We are using triangle barycenter here. Check out wikipedia...
+     * To decide in which triangle the point (x,z) is, we find the closest corner.
+     *   (x1,z1) -- (x1,z1+1)
+     *      |       /     |
+     *      |      /      |
+     *      |     /       |
+     *   (x1+1,z1)--(x1+1,z1+1)
      * @param x
      * @param z
      * @return
      */
     public double altitude(double x, double z) {
-        double altitude = 0;
+        if (x < 0 || z < 0 || x+1 >= mySize.getWidth() || z+1 >= mySize.getHeight()) return 0;
+        float[] p,q,r;
         int x1 = (int) x;
         int z1 = (int) z;
-        try {
-            double fxz1 = (x1+1 - x)*getGridAltitude(x1, z1) +(x-x1)*getGridAltitude(x1+1, z1);
-            double fxzPlus1 = (x1+1 - x)*getGridAltitude(x1, z1+1) +(x-x1)*getGridAltitude(x1+1, z1+1);
-            altitude = (z1+1 - z)*fxz1 + (z - z1)*fxzPlus1;
-        } catch (ArrayIndexOutOfBoundsException e) {
-            e.printStackTrace();
-            altitude = 0;
+
+        double dist1 = (x-x1)*(x-x1)+(z-z1)*(z-z1);
+        double dist2 = (x1+1-x)*(x1+1-x)+(z1+1-z)*(z1+1-z);
+
+        if (dist1 < dist2) {
+            p = new float[]{x1, (float)getGridAltitude(x1, z1), z1};
+            q = new float[]{x1, (float)getGridAltitude(x1, z1+1), z1+1};
+            r = new float[]{x1+1, (float)getGridAltitude(x1+1, z1), z1};
+        } else {
+            p = new float[]{x1+1, (float)getGridAltitude(x1+1, z1+1), z1+1};
+            q = new float[]{x1+1, (float)getGridAltitude(x1+1, z1), z1};
+            r = new float[]{x1, (float)getGridAltitude(x1, z1+1), z1+1};
         }
+
+        float[] n = MathUtils.normal(p,q,r);
+        double altitude = -(n[2]*(z - p[2])+n[0]*(x-p[0]))/n[1] + p[1];
         return altitude;
     }
 
@@ -206,6 +220,7 @@ public class Terrain {
                 }gl.glEnd();
             }
         gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
+        gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
     }
 
     /**
