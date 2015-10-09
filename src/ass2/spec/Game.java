@@ -28,11 +28,14 @@ public class Game extends JFrame implements GLEventListener{
     private final String LEAVES_TEXT_EXT = "jpg";
     private Terrain myTerrain;
     private Camera camera;
+    private Avatar avatar;
 
     public Game(Terrain terrain) {
     	super("Assignment 2");
         myTerrain = terrain;
         camera = new Camera(180, terrain);
+        //view = new View(180, terrain);
+        avatar = new Avatar(0, terrain);
     }
     
     /** 
@@ -45,6 +48,10 @@ public class Game extends JFrame implements GLEventListener{
         GLJPanel panel = new GLJPanel();
         panel.addGLEventListener(this);
         panel.addKeyListener(camera);
+
+        //Avatar avatar = new Avatar(0, myTerrain);
+        panel.addKeyListener(avatar);
+        //view = new View(avatar);
 
         // Add an animator to call 'display' at 60fps
         FPSAnimator animator = new FPSAnimator(60);
@@ -103,24 +110,26 @@ public class Game extends JFrame implements GLEventListener{
         gl.glLoadIdentity();
 
         GLU glu = new GLU();
-        glu.gluPerspective(60, 1, 0.01, 20); //TODO: use same aspect ratio as viewport
+        glu.gluPerspective(90, 1, 0.01, 20); //TODO: use same aspect ratio as viewport
         //glu.gluLookAt(0, 5, -5, 3, 0, 0, 0, 0, 1);
+        gl.glMatrixMode(GL2.GL_MODELVIEW);
 
 	}
 
     @Override
     public void display(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
-
-        gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();
 
         gl.glClearColor(1, 1, 1, 0);
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
 
-        double[] trans = camera.getTranslation();
-        gl.glRotated(-camera.getRotation(), 0, 1, 0);
-        gl.glTranslated(-trans[0], -trans[1], -trans[2]);
+//        double[] trans = camera.getTranslation();
+//        gl.glRotated(-camera.getRotation(), 0, 1, 0);
+//        gl.glTranslated(-trans[0], -trans[1], -trans[2]);
+        //view.setFirstPerson(true);
+        //view.updateView(gl);
+        avatar.updateView(gl);
 
         myTerrain.draw(gl);
 //        Tree t = new Tree(0,0,0);
