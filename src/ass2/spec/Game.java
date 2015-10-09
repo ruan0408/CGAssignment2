@@ -123,12 +123,12 @@ public class Game extends JFrame implements GLEventListener{
         gl.glTranslated(-trans[0], -trans[1], -trans[2]);
 
         myTerrain.draw(gl);
-        Tree t = new Tree(0,0,0);
-        Tree t1 = new Tree(0,0,1);
-        Tree t2 = new Tree(0,0,-1);
-        t.draw(gl);
-        t1.draw(gl);
-        t2.draw(gl);
+//        Tree t = new Tree(0,0,0);
+//        Tree t1 = new Tree(0,0,1);
+//        Tree t2 = new Tree(0,0,-1);
+//        t.draw(gl);
+//        t1.draw(gl);
+//        t2.draw(gl);
     }
 
     @Override
