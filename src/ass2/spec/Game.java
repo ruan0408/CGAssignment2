@@ -26,32 +26,29 @@ public class Game extends JFrame implements GLEventListener{
     private final String TRUNK_TEXT_EXT = "jpg";
     private final String LEAVES_TEXT = "src/leaves.jpg";
     private final String LEAVES_TEXT_EXT = "jpg";
+
+    private final double FOV = 120;
+    private final double NEAR_PLANE_DIST = 0.01;
+    private final double FAR_PLANE_DIST = 10;
+
     private Terrain myTerrain;
-    private Camera camera;
     private Avatar avatar;
 
     public Game(Terrain terrain) {
     	super("Assignment 2");
         myTerrain = terrain;
-        camera = new Camera(180, terrain);
-        //view = new View(180, terrain);
-        avatar = new Avatar(0, terrain);
+        avatar = new Avatar(terrain);
     }
     
     /** 
      * Run the game.
-     *
      */
     public void run() {
         GLProfile glp = GLProfile.getDefault();
         GLCapabilities caps = new GLCapabilities(glp);
         GLJPanel panel = new GLJPanel();
         panel.addGLEventListener(this);
-        panel.addKeyListener(camera);
-
-        //Avatar avatar = new Avatar(0, myTerrain);
         panel.addKeyListener(avatar);
-        //view = new View(avatar);
 
         // Add an animator to call 'display' at 60fps
         FPSAnimator animator = new FPSAnimator(60);
@@ -108,10 +105,9 @@ public class Game extends JFrame implements GLEventListener{
         GL2 gl = drawable.getGL().getGL2();
         gl.glMatrixMode(GL2.GL_PROJECTION);
         gl.glLoadIdentity();
-
+        double ratio = (double)getWidth()/getHeight();
         GLU glu = new GLU();
-        glu.gluPerspective(90, 1, 0.01, 20); //TODO: use same aspect ratio as viewport
-        //glu.gluLookAt(0, 5, -5, 3, 0, 0, 0, 0, 1);
+        glu.gluPerspective(FOV, ratio, NEAR_PLANE_DIST, FAR_PLANE_DIST);
         gl.glMatrixMode(GL2.GL_MODELVIEW);
 
 	}
@@ -123,26 +119,12 @@ public class Game extends JFrame implements GLEventListener{
 
         gl.glClearColor(1, 1, 1, 0);
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
-
-//        double[] trans = camera.getTranslation();
-//        gl.glRotated(-camera.getRotation(), 0, 1, 0);
-//        gl.glTranslated(-trans[0], -trans[1], -trans[2]);
-        //view.setFirstPerson(true);
-        //view.updateView(gl);
         avatar.updateView(gl);
-
         myTerrain.draw(gl);
-//        Tree t = new Tree(0,0,0);
-//        Tree t1 = new Tree(0,0,1);
         Tree t2 = new Tree(0,0,-1);
-//        t.draw(gl);
-//        t1.draw(gl);
         t2.draw(gl);
     }
 
     @Override
-    public void dispose(GLAutoDrawable drawable) {
-        // TODO Auto-generated method stub
-
-    }
+    public void dispose(GLAutoDrawable drawable) {}
 }
