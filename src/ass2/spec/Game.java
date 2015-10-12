@@ -88,11 +88,15 @@ public class Game extends JFrame implements GLEventListener{
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, myTerrain.getSunlight(), 0);
 
+//        gl.glEnable(GL2.GL_CULL_FACE);
+//        gl.glCullFace(GL2.GL_BACK);
+
         // normalise normals (!)
         // this is necessary to make lighting work properly
         gl.glEnable(GL2.GL_NORMALIZE);
 
         gl.glEnable(GL2.GL_TEXTURE_2D);
+
         Terrain.texture = new MyTexture(gl,TERRAIN_TEXT,TERRAIN_TEXT_EXT,true);
         Road.texture =  new MyTexture(gl,ROAD_TEXT,ROAD_TEXT_EXT,true);
         Tree.leavesTexture =  new MyTexture(gl,LEAVES_TEXT,LEAVES_TEXT_EXT,true);
