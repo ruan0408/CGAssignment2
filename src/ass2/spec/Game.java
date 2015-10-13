@@ -20,7 +20,7 @@ public class Game extends JFrame implements GLEventListener{
 
     private final String TERRAIN_TEXT = "src/dirtGrass.jpg";
     private final String TERRAIN_TEXT_EXT = "jpg";
-    private final String ROAD_TEXT = "src/dirtRoad.jpg";
+    private final String ROAD_TEXT = "src/asphalt.jpg";
     private final String ROAD_TEXT_EXT = "jpg";
     private final String TRUNK_TEXT = "src/trunk.jpg";
     private final String TRUNK_TEXT_EXT = "jpg";
