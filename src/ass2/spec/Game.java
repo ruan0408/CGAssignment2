@@ -120,9 +120,40 @@ public class Game extends JFrame implements GLEventListener{
     public void display(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
         gl.glLoadIdentity();
+        float radius = 3f;
+        float[] ambient = {1f, 1f, 1f, 1f};     // low ambient light
+        float[] diffuse = { 1f, 1f, 1f, 1f };        // full diffuse colour
+
+        float[] low_diffuse = {0.8f,0.8f,0.8f,1f};
+        float[] low_ambient = {0.2f,0.2f,0.2f,1f};
+
+
+        float[] pos = {(float)(avatar.getPosition()[0]),
+                        (float)(avatar.getPosition()[1]),
+                        (float)(avatar.getPosition()[2])};
+
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, myTerrain.getSunlight(), 0);
+
+        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_CONSTANT_ATTENUATION, 1);
+        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, 0);
+        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, 0);
 
         gl.glClearColor(1, 1, 1, 0);
-        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+
+        if(avatar.isNightTime()) {
+            gl.glClearColor(0f, 0f, 0.03f, 0);
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, low_ambient, 0);
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, low_diffuse, 0);
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, pos, -1);
+
+            gl.glLightf(GL2.GL_LIGHT0, GL2.GL_CONSTANT_ATTENUATION, 1f);
+            gl.glLightf(GL2.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, 1f/(2*radius));
+            gl.glLightf(GL2.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, 1f/(2*radius*radius));
+        }
+
+            gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
         avatar.updateView(gl);
         myTerrain.draw(gl);
         Tree t2 = new Tree(0,0,-1);

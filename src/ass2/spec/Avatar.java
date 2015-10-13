@@ -28,12 +28,14 @@ public class Avatar implements KeyListener{
     private double rotation;    //rotation over y axis, starting from the x axis counter clockwise.
     private Terrain terrain;
     private boolean isFirstPerson;
+    private boolean isNightTime;
 
     public Avatar(Terrain t) {
         rotation = 0;
         position = new double[]{0, 0, 0};
         terrain = t;
         isFirstPerson = true;
+        isNightTime = false;
     }
 
     public double[] getPosition() {
@@ -60,6 +62,8 @@ public class Avatar implements KeyListener{
         }
     }
 
+    public boolean isNightTime(){return isNightTime;}
+
     @Override
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
@@ -80,6 +84,8 @@ public class Avatar implements KeyListener{
             case KeyEvent.VK_SPACE:
                 isFirstPerson = !isFirstPerson;
                 break;
+            case KeyEvent.VK_N:
+                isNightTime = !isNightTime;
             default:
                 break;
         }
