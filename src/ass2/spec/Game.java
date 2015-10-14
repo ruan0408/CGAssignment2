@@ -8,7 +8,7 @@ import javax.media.opengl.glu.GLU;
 import javax.swing.*;
 import java.io.File;
 import java.io.FileNotFoundException;
-
+import java.util.Arrays;
 
 
 /**
@@ -84,9 +84,11 @@ public class Game extends JFrame implements GLEventListener{
         gl.glEnable(GL2.GL_LIGHT0);
         float[] ambient = {1f, 1f, 1f, 1f};     // low ambient light
         float[] diffuse = { 1f, 1f, 1f, 1f };        // full diffuse colour
+        float[] sunLight = Arrays.copyOf(myTerrain.getSunlight(), 4);
+        sunLight[3] = 1;
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, myTerrain.getSunlight(), 0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, sunLight, 0);
 
 //        gl.glEnable(GL2.GL_CULL_FACE);
 //        gl.glCullFace(GL2.GL_BACK);
@@ -121,20 +123,18 @@ public class Game extends JFrame implements GLEventListener{
         GL2 gl = drawable.getGL().getGL2();
         gl.glLoadIdentity();
         float radius = 3f;
-        float[] ambient = {1f, 1f, 1f, 1f};     // low ambient light
-        float[] diffuse = { 1f, 1f, 1f, 1f };        // full diffuse colour
 
         float[] low_diffuse = {0.8f,0.8f,0.8f,1f};
         float[] low_ambient = {0.2f,0.2f,0.2f,1f};
-
 
         float[] pos = {(float)(avatar.getPosition()[0]),
                         (float)(avatar.getPosition()[1]),
                         (float)(avatar.getPosition()[2])};
 
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, myTerrain.getSunlight(), 0);
+        // Is this code yours. If not, delete it. It's old code mine.
+//        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
+//        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
+//        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, myTerrain.getSunlight(), 0);
 
         gl.glLightf(GL2.GL_LIGHT0, GL2.GL_CONSTANT_ATTENUATION, 1);
         gl.glLightf(GL2.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, 0);
@@ -153,11 +153,11 @@ public class Game extends JFrame implements GLEventListener{
             gl.glLightf(GL2.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, 1f/(2*radius*radius));
         }
 
-            gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
         avatar.updateView(gl);
         myTerrain.draw(gl);
-        Tree t2 = new Tree(0,0,-1);
-        t2.draw(gl);
+//        Tree t2 = new Tree(0,0,-1);
+//        t2.draw(gl);
     }
 
     @Override
