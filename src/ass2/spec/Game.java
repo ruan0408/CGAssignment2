@@ -82,6 +82,8 @@ public class Game extends JFrame implements GLEventListener{
         gl.glEnable(GL2.GL_LIGHTING);
         //Turn on default light
         gl.glEnable(GL2.GL_LIGHT0);
+
+        //light settings for day time
         float[] ambient = {1f, 1f, 1f, 1f};     // low ambient light
         float[] diffuse = { 1f, 1f, 1f, 1f };        // full diffuse colour
         float[] sunLight = Arrays.copyOf(myTerrain.getSunlight(), 4);
@@ -90,8 +92,30 @@ public class Game extends JFrame implements GLEventListener{
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, sunLight, 0);
 
-//        gl.glEnable(GL2.GL_CULL_FACE);
-//        gl.glCullFace(GL2.GL_BACK);
+        //Night time light settings
+        float radius = 3.5f; //light radius
+        float[] low_diffuse = {0.8f,0.8f,0.8f,1f}; //lower diffuse light
+        float[] low_ambient = {0.4f,0.4f,0.4f,1f}; //very low ambient light
+
+        float[] pos = {(float)(avatar.getPosition()[0]),
+                        (float)(avatar.getPosition()[1]),
+                        (float)(avatar.getPosition()[2]),1}; //avatar position
+
+        //darker ambient and diffuse light
+        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, low_ambient, 0);
+        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, low_diffuse, 0);
+
+        //sets light source position to the avatar's
+        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, pos, 0);
+
+        //attenuates light, making it weaker the further away from the source it is.
+        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_CONSTANT_ATTENUATION, 1f);
+        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_LINEAR_ATTENUATION, 1f/(2*radius));
+        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_QUADRATIC_ATTENUATION, 1f/(2*radius));
+
+        //creates spotlight effect
+        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_CUTOFF, 45.0F);
+        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION, pos, 0);
 
         // normalise normals (!)
         // this is necessary to make lighting work properly
@@ -122,35 +146,20 @@ public class Game extends JFrame implements GLEventListener{
     public void display(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
         gl.glLoadIdentity();
-        float radius = 3f;
 
-        float[] low_diffuse = {0.8f,0.8f,0.8f,1f};
-        float[] low_ambient = {0.2f,0.2f,0.2f,1f};
-
-        float[] pos = {(float)(avatar.getPosition()[0]),
-                        (float)(avatar.getPosition()[1]),
-                        (float)(avatar.getPosition()[2])};
-
-        // Is this code yours. If not, delete it. It's old code mine.
-//        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
-//        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
-//        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, myTerrain.getSunlight(), 0);
-
-        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_CONSTANT_ATTENUATION, 1);
-        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, 0);
-        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, 0);
-
-        gl.glClearColor(1, 1, 1, 0);
-
+        //sets parameters for night time
         if(avatar.isNightTime()) {
+            //dark blue background
             gl.glClearColor(0f, 0f, 0.03f, 0);
-            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, low_ambient, 0);
-            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, low_diffuse, 0);
-            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, pos, -1);
+            gl.glDisable(GL2.GL_LIGHT0);
+            gl.glEnable(GL2.GL_LIGHT1);
+        }
 
-            gl.glLightf(GL2.GL_LIGHT0, GL2.GL_CONSTANT_ATTENUATION, 1f);
-            gl.glLightf(GL2.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, 1f/(2*radius));
-            gl.glLightf(GL2.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, 1f/(2*radius*radius));
+        //sets default parameters, used during day time
+        else {
+            gl.glDisable(GL2.GL_LIGHT1);
+            gl.glEnable(GL2.GL_LIGHT0);
+            gl.glClearColor(1, 1, 1, 0);
         }
 
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
