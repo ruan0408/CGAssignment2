@@ -6,6 +6,7 @@ import javax.media.opengl.*;
 import javax.media.opengl.awt.GLJPanel;
 import javax.media.opengl.glu.GLU;
 import javax.swing.*;
+import javax.swing.text.StringContent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
@@ -26,6 +27,8 @@ public class Game extends JFrame implements GLEventListener{
     private final String TRUNK_TEXT_EXT = "jpg";
     private final String LEAVES_TEXT = "src/leaves.jpg";
     private final String LEAVES_TEXT_EXT = "jpg";
+    private final String SUN_TEXT = "src/sun.jpg";
+    private final String SUN_TEXT_EXT = "jpg";
 
     private final double FOV = 120;
     private final double NEAR_PLANE_DIST = 0.01;
@@ -127,6 +130,7 @@ public class Game extends JFrame implements GLEventListener{
         Road.texture =  new MyTexture(gl,ROAD_TEXT,ROAD_TEXT_EXT,true);
         Tree.leavesTexture =  new MyTexture(gl,LEAVES_TEXT,LEAVES_TEXT_EXT,true);
         Tree.trunkTexture =  new MyTexture(gl, TRUNK_TEXT,TRUNK_TEXT_EXT,true);
+        Terrain.sunTexture = new MyTexture(gl, SUN_TEXT, SUN_TEXT_EXT, true);
 	}
 
 	@Override
@@ -157,8 +161,21 @@ public class Game extends JFrame implements GLEventListener{
 
         //sets default parameters, used during day time
         else {
+            float[] fullDayLight = {1.0f,1.0f,1.0f,1.0f};
+            float[] twilight = {0.6f,0.3f,0.6f,1.0f};
+            float[] earlyDayLight = {0.7f,0.7f,0.7f,1.0f};
+
+            float[][] sunLights = {fullDayLight,twilight,earlyDayLight};
+
+            if(avatar.isSunPositionChanged()){
+                float[] sunLight = Arrays.copyOf(myTerrain.getSunlight(), 4);
+                sunLight[3] = 1;
+                gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, sunLight, 0);
+                avatar.setSunPositionChanged(false);
+            }
             gl.glDisable(GL2.GL_LIGHT1);
             gl.glEnable(GL2.GL_LIGHT0);
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, sunLights[(avatar.getCurrentRotation()-1)/120], 0);
             gl.glClearColor(1, 1, 1, 0);
         }
 

@@ -16,6 +16,7 @@ public class Avatar implements KeyListener{
     private final double MOV_STEP = 0.4;    // 0.4 units per key stroke
     private final double AVATAR_SIZE = 0.3;
     private final double CAM_DIST_Y = 1;    // vertical distance from the avatar (when camera is 3rd person)
+    private final int ROTATION_STEP = 30;
 
     /**
      * Keep in mind that Opengl axis are like this:
@@ -29,6 +30,8 @@ public class Avatar implements KeyListener{
     private Terrain terrain;
     private boolean isFirstPerson;
     private boolean isNightTime;
+    private boolean sunPositionChanged;
+    private int currentRotation;
 
     public Avatar(Terrain t) {
         rotation = 0;
@@ -36,6 +39,8 @@ public class Avatar implements KeyListener{
         terrain = t;
         isFirstPerson = true;
         isNightTime = false;
+        sunPositionChanged = false;
+        currentRotation = 0;
     }
 
     public double[] getPosition() {
@@ -64,6 +69,11 @@ public class Avatar implements KeyListener{
 
     public boolean isNightTime(){return isNightTime;}
 
+    public boolean isSunPositionChanged() {return sunPositionChanged;}
+
+    public void setSunPositionChanged(boolean bool){sunPositionChanged = bool;}
+
+    public int getCurrentRotation(){return currentRotation;}
     @Override
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
@@ -86,6 +96,20 @@ public class Avatar implements KeyListener{
                 break;
             case KeyEvent.VK_N:
                 isNightTime = !isNightTime;
+                break;
+            //forwards time, moving the sun
+            case KeyEvent.VK_T:
+                float[] newSunPosition = MathUtils.rotatePoint(ROTATION_STEP, terrain.getSunlight());
+                terrain.setSunlightDir(newSunPosition[0],newSunPosition[1],newSunPosition[2]);
+                currentRotation = (currentRotation + ROTATION_STEP)%360;
+                sunPositionChanged = true;
+                break;
+            case KeyEvent.VK_R:
+                newSunPosition = MathUtils.rotatePoint(-ROTATION_STEP, terrain.getSunlight());
+                terrain.setSunlightDir(newSunPosition[0],newSunPosition[1],newSunPosition[2]);
+                currentRotation = (currentRotation - ROTATION_STEP)%360;
+                sunPositionChanged = true;
+                break;
             default:
                 break;
         }

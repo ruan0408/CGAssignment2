@@ -51,4 +51,31 @@ public class MathUtils {
     static public double normaliseAngle(double angle) {
         return ((angle + 180.0) % 360.0 + 360.0) % 360.0 - 180.0;
     }
+
+    /**
+     * Rotate a point v by an angle theta using a rotation matrix and matrix-vector multiplication
+     * @param theta
+     * @param p
+     * @return
+     */
+    public static float[] rotatePoint(double theta, float[] p) {
+        double rotationAngle = normaliseAngle(theta);
+        rotationAngle = Math.toRadians(rotationAngle);
+        double sin = Math.sin(rotationAngle);
+        double cos = Math.cos(rotationAngle);
+        double[][] rotationMatrix = {{1,0,0,0}, {0, cos, -sin, 0}, {0, sin, cos, 0}, {0,0,0,1}};
+
+        double[] pointInHomogenousCoordinates = {p[0],p[1],p[2],1};
+        double[] u = new double[4];
+
+        for (int i = 0; i < 3; i++) {
+            u[i] = 0;
+            for (int j = 0; j < 3; j++) {
+                u[i] += rotationMatrix[i][j] * pointInHomogenousCoordinates[j];
+            }
+        }
+
+        return new float[]{(float)u[0],(float)u[1],(float)u[2]};
+    }
+
 }

@@ -1,6 +1,8 @@
 package ass2.spec;
 
 import javax.media.opengl.GL2;
+import javax.media.opengl.glu.GLU;
+import javax.media.opengl.glu.GLUquadric;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.List;
 public class Terrain {
 
     static MyTexture texture;
+    static MyTexture sunTexture;
     private Dimension mySize;
     private double[][] myAltitude;
     private List<Tree> myTrees;
@@ -179,6 +182,7 @@ public class Terrain {
         drawTerrain(gl);
         for (Tree t : trees()) t.draw(gl);
         for (Road r : roads()) drawRoad(gl, r);
+        drawSun(gl);
 
     }
 
@@ -277,4 +281,29 @@ public class Terrain {
         //gl.glVertex3d(endPoint[0], altitude(endPoint[0], endPoint[1]),endPoint[1]);
         gl.glEnd();
     }
+
+    private void drawSun(GL2 gl){
+        float[] white = {1f, 1f, 1f, 1.0f};
+
+        gl.glPushMatrix();
+        gl.glTranslated(mySunlight[0],mySunlight[1]+3,mySunlight[2]);
+
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white, 0);
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, sunTexture.getTextureId());
+        gl.glMatrixMode(GL2.GL_TEXTURE);
+        gl.glLoadIdentity();
+        gl.glScalef(5, 5, 1);
+        GLU glu = new GLU();
+        GLUquadric quad = glu.gluNewQuadric();
+        glu.gluQuadricTexture(quad, true);
+        glu.gluSphere(quad, 0.4, 15, 15);
+        glu.gluDeleteQuadric(quad);
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
+        gl.glLoadIdentity();
+        gl.glMatrixMode(GL2.GL_MODELVIEW);
+        gl.glLoadIdentity();
+
+        gl.glPopMatrix();
+    }
+
 }
