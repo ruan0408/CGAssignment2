@@ -21,6 +21,7 @@ public class Terrain {
     private double[][] myAltitude;
     private List<Tree> myTrees;
     private List<Road> myRoads;
+    private List<Tardis> myTardis;
     private float[] mySunlight;
 
 
@@ -35,6 +36,7 @@ public class Terrain {
         myAltitude = new double[width][depth];
         myTrees = new ArrayList<Tree>();
         myRoads = new ArrayList<Road>();
+        myTardis = new ArrayList<Tardis>();
         mySunlight = new float[4];
         mySunlight[3] = 0; //directional light
     }
@@ -166,6 +168,12 @@ public class Terrain {
         myTrees.add(tree);
     }
 
+    public void addTardis(double x, double z){
+        double y = altitude(x,z);
+        Tardis tardis = new Tardis(x,y,z);
+        myTardis.add(tardis);
+    }
+
 
     /**
      * Add a road. 
@@ -183,6 +191,7 @@ public class Terrain {
         for (Tree t : trees()) t.draw(gl);
         for (Road r : roads()) drawRoad(gl, r);
         drawSun(gl);
+        for (Tardis t : myTardis) t.draw(gl);
 
     }
 

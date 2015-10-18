@@ -123,7 +123,6 @@ public class Game extends JFrame implements GLEventListener{
         // normalise normals (!)
         // this is necessary to make lighting work properly
         gl.glEnable(GL2.GL_NORMALIZE);
-
         gl.glEnable(GL2.GL_TEXTURE_2D);
 
         Terrain.texture = new MyTexture(gl,TERRAIN_TEXT,TERRAIN_TEXT_EXT,true);
