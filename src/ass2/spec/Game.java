@@ -160,11 +160,20 @@ public class Game extends JFrame implements GLEventListener{
 
         //sets default parameters, used during day time
         else {
+            float[] lightColor;
             float[] fullDayLight = {1.0f,1.0f,1.0f,1.0f};
             float[] twilight = {0.6f,0.3f,0.6f,1.0f};
             float[] earlyDayLight = {0.7f,0.7f,0.7f,1.0f};
 
-            float[][] sunLights = {fullDayLight,twilight,earlyDayLight};
+            float sunAngle = avatar.getCurrentRotation();
+
+            if(sunAngle >= 0 && sunAngle <= 120) {
+                lightColor = fullDayLight;
+            }
+            else if(sunAngle > 120 && sunAngle <= 240){
+                lightColor = twilight;
+            }
+            else lightColor = earlyDayLight;
 
             if(avatar.isSunPositionChanged()){
                 float[] sunLight = Arrays.copyOf(myTerrain.getSunlight(), 4);
@@ -174,7 +183,7 @@ public class Game extends JFrame implements GLEventListener{
             }
             gl.glDisable(GL2.GL_LIGHT1);
             gl.glEnable(GL2.GL_LIGHT0);
-            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, sunLights[(avatar.getCurrentRotation()-1)/120], 0);
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, lightColor, 0);
             gl.glClearColor(1, 1, 1, 0);
         }
 

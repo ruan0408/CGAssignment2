@@ -107,7 +107,8 @@ public class Avatar implements KeyListener{
             case KeyEvent.VK_R:
                 newSunPosition = MathUtils.rotatePoint(-ROTATION_STEP, terrain.getSunlight());
                 terrain.setSunlightDir(newSunPosition[0],newSunPosition[1],newSunPosition[2]);
-                currentRotation = (currentRotation - ROTATION_STEP)%360;
+                currentRotation -= ROTATION_STEP;
+                if(currentRotation < 0) currentRotation += 360;
                 sunPositionChanged = true;
                 break;
             default:
