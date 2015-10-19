@@ -41,6 +41,7 @@ public class Game extends JFrame implements GLEventListener{
     	super("Assignment 2");
         myTerrain = terrain;
         avatar = new Avatar(terrain);
+        myTerrain.setMyAvatar(avatar);
     }
     
     /** 
@@ -90,7 +91,7 @@ public class Game extends JFrame implements GLEventListener{
         float[] ambient = {1f, 1f, 1f, 1f};     // low ambient light
         float[] diffuse = { 1f, 1f, 1f, 1f };        // full diffuse colour
         float[] sunLight = Arrays.copyOf(myTerrain.getSunlight(), 4);
-        sunLight[3] = 1;
+        sunLight[3] = 0;
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, sunLight, 0);
@@ -106,20 +107,19 @@ public class Game extends JFrame implements GLEventListener{
 
         //darker ambient and diffuse light
         gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, low_ambient, 0);
-        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, low_diffuse, 0);
+        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, diffuse, 0);
 
         //sets light source position to the avatar's
-        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, pos, 0);
+         gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, pos, 0);
 
         //attenuates light, making it weaker the further away from the source it is.
-        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_CONSTANT_ATTENUATION, 1f);
-        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_LINEAR_ATTENUATION, 1f/(2*radius));
-        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_QUADRATIC_ATTENUATION, 1f/(2*radius));
+       gl.glLightf(GL2.GL_LIGHT1, GL2.GL_CONSTANT_ATTENUATION, 1f);
+       gl.glLightf(GL2.GL_LIGHT1, GL2.GL_LINEAR_ATTENUATION, 1f/(2*radius));
+       gl.glLightf(GL2.GL_LIGHT1, GL2.GL_QUADRATIC_ATTENUATION, 1f/(2*radius));
 
-        //creates spotlight effect
         gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_CUTOFF, 45.0F);
-        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION, pos, 0);
-
+        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION,pos, 0);
+       gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_EXPONENT, 1f);
         // normalise normals (!)
         // this is necessary to make lighting work properly
         gl.glEnable(GL2.GL_NORMALIZE);
@@ -151,9 +151,15 @@ public class Game extends JFrame implements GLEventListener{
         gl.glLoadIdentity();
 
         //sets parameters for night time
-        if(avatar.isNightTime()) {
+        if(myTerrain.isNightTime()) {
             //dark blue background
             gl.glClearColor(0f, 0f, 0.03f, 0);
+
+/*            float[] pos = {(float)(avatar.getPosition()[0]),
+                    (float)(avatar.getPosition()[1]),
+                    (float)(avatar.getPosition()[2]),1}; //avatar position
+            gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, pos, 0);*/
+
             gl.glDisable(GL2.GL_LIGHT0);
             gl.glEnable(GL2.GL_LIGHT1);
         }
@@ -165,7 +171,7 @@ public class Game extends JFrame implements GLEventListener{
             float[] twilight = {0.6f,0.3f,0.6f,1.0f};
             float[] earlyDayLight = {0.7f,0.7f,0.7f,1.0f};
 
-            float sunAngle = avatar.getCurrentRotation();
+            float sunAngle = myTerrain.getCurrentSunRotation();
 
             if(sunAngle >= 0 && sunAngle <= 120) {
                 lightColor = fullDayLight;
@@ -175,11 +181,11 @@ public class Game extends JFrame implements GLEventListener{
             }
             else lightColor = earlyDayLight;
 
-            if(avatar.isSunPositionChanged()){
+            if(myTerrain.isSunPositionChanged()){
                 float[] sunLight = Arrays.copyOf(myTerrain.getSunlight(), 4);
                 sunLight[3] = 1;
                 gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, sunLight, 0);
-                avatar.setSunPositionChanged(false);
+                myTerrain.setSunPositionChanged(false);
             }
             gl.glDisable(GL2.GL_LIGHT1);
             gl.glEnable(GL2.GL_LIGHT0);

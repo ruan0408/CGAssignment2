@@ -24,6 +24,12 @@ public class Terrain {
     private List<Tardis> myTardis;
     private float[] mySunlight;
 
+    Avatar myAvatar;
+    private boolean isNightTime;
+    private boolean sunPositionChanged;
+    private int currentSunRotation;
+
+
 
     /**
      * Create a new terrain
@@ -39,6 +45,9 @@ public class Terrain {
         myTardis = new ArrayList<Tardis>();
         mySunlight = new float[4];
         mySunlight[3] = 0; //directional light
+        isNightTime = false;
+        sunPositionChanged = false;
+        currentSunRotation = 0;
     }
     
     public Terrain(Dimension size) {
@@ -61,6 +70,14 @@ public class Terrain {
         return mySunlight;
     }
 
+    public void setNigthTime(boolean nigthTime){isNightTime = nigthTime;}
+    public boolean isNightTime(){return isNightTime;}
+    public boolean isSunPositionChanged(){return sunPositionChanged;}
+    public void setSunPositionChanged(boolean changed){ sunPositionChanged = changed;}
+    public int getCurrentSunRotation(){return currentSunRotation;}
+    public void setCurrentSunRotation(int rotation){currentSunRotation = rotation;}
+
+
     /**
      * Set the sunlight direction. 
      * 
@@ -74,6 +91,10 @@ public class Terrain {
         mySunlight[0] = dx;
         mySunlight[1] = dy;
         mySunlight[2] = dz;        
+    }
+
+    public void setMyAvatar(Avatar avatar){
+        myAvatar = avatar;
     }
     
     /**
@@ -190,8 +211,8 @@ public class Terrain {
         drawTerrain(gl);
         for (Tree t : trees()) t.draw(gl);
         for (Road r : roads()) drawRoad(gl, r);
-        drawSun(gl);
-        for (Tardis t : myTardis) t.draw(gl);
+        if(!isNightTime)drawSun(gl);
+        for (Tardis t : myTardis) t.draw(gl, isNightTime);
 
     }
 
