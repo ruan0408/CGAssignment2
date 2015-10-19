@@ -14,7 +14,7 @@ import java.util.Arrays;
 /**
  * COMMENT: Comment Game 
  *
- * @author malcolmr
+ * @author malcolmrn
  */
 public class Game extends JFrame implements GLEventListener{
 
@@ -96,8 +96,8 @@ public class Game extends JFrame implements GLEventListener{
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, sunLight, 0);
 
         //Night time light settings
-        float radius = 3.5f; //light radius
-        float[] low_diffuse = {0.8f,0.8f,0.8f,1f}; //lower diffuse light
+        float radius = 2f; //light radius
+        float[] low_diffuse = {1f,1f,1f,1f}; //lower diffuse light
         float[] low_ambient = {0.4f,0.4f,0.4f,1f}; //very low ambient light
 
         float[] pos = {(float)(avatar.getPosition()[0]),
@@ -112,13 +112,13 @@ public class Game extends JFrame implements GLEventListener{
          gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, pos, 0);
 
         //attenuates light, making it weaker the further away from the source it is.
-       gl.glLightf(GL2.GL_LIGHT1, GL2.GL_CONSTANT_ATTENUATION, 1f);
-       gl.glLightf(GL2.GL_LIGHT1, GL2.GL_LINEAR_ATTENUATION, 1f/(2*radius));
-       gl.glLightf(GL2.GL_LIGHT1, GL2.GL_QUADRATIC_ATTENUATION, 1f/(2*radius));
+        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_CONSTANT_ATTENUATION, 1f);
+        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_LINEAR_ATTENUATION, 1f/(2*radius));
+        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_QUADRATIC_ATTENUATION, 1f/(2*radius*radius));
 
-        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_CUTOFF, 45.0F);
-        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION,pos, 0);
-       gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_EXPONENT, 1f);
+        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_CUTOFF, 25.0F);
+        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION,new float[] {0,(float) avatar.getPosition()[1],0}, 0);
+       // gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_EXPONENT, 1f);
         // normalise normals (!)
         // this is necessary to make lighting work properly
         gl.glEnable(GL2.GL_NORMALIZE);
