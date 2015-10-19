@@ -16,7 +16,7 @@ public class Avatar implements KeyListener{
     private final double MOV_STEP = 0.4;    // 0.4 units per key stroke
     private final double AVATAR_SIZE = 0.3;
     private final double CAM_DIST_Y = 1;    // vertical distance from the avatar (when camera is 3rd person)
-    private final double CAM_DIST_GROUND = 4;// how far behind the avatar you want the camera (when camera is 3rd person)
+    private final double CAM_DIST_GROUND = 3;// how far behind the avatar you want the camera (when camera is 3rd person)
     private final int ROTATION_STEP = 30;
 
     /**
@@ -63,7 +63,8 @@ public class Avatar implements KeyListener{
             GLU glu = new GLU();
             double rad = Math.toRadians(rot+180);//+180 because the camera is behind the avatar
             double[] cam = {pos[0]+CAM_DIST_GROUND*Math.cos(rad), pos[1]+CAM_DIST_Y, pos[2]-CAM_DIST_GROUND*Math.sin(rad)};
-            glu.gluLookAt(cam[0] ,cam[1], cam[2], pos[0]/*-1000*Math.cos(rad)*/, pos[1], pos[2]/*+1000*Math.sin(rad)*/, 0, 1, 0);
+            // camera looking at the horizon
+            glu.gluLookAt(cam[0] ,cam[1], cam[2], -1000*Math.cos(rad), pos[1], 1000*Math.sin(rad), 0, 1, 0);
             draw(gl);
         }
     }
@@ -137,6 +138,7 @@ public class Avatar implements KeyListener{
         gl.glPopMatrix();
     }
 
+    // Debugging method
     private void drawAxis(GL2 gl) {
         gl.glDisable(GL2.GL_LIGHTING);
         gl.glLineWidth(3);
