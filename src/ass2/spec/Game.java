@@ -6,7 +6,6 @@ import javax.media.opengl.*;
 import javax.media.opengl.awt.GLJPanel;
 import javax.media.opengl.glu.GLU;
 import javax.swing.*;
-import javax.swing.text.StringContent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
@@ -30,7 +29,7 @@ public class Game extends JFrame implements GLEventListener{
     private final String SUN_TEXT = "src/sun.jpg";
     private final String SUN_TEXT_EXT = "jpg";
 
-    private final double FOV = 120;
+    private final double FOV = 60;
     private final double NEAR_PLANE_DIST = 0.01;
     private final double FAR_PLANE_DIST = 10;
 
