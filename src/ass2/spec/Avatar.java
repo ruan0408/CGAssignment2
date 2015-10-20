@@ -14,7 +14,7 @@ public class Avatar implements KeyListener{
 
     private final double ANGLE_STEP = 5;    // 8 degrees per key stroke
     private final double MOV_STEP = 0.4;    // 0.4 units per key stroke
-    private final double AVATAR_SIZE = 0.3;
+    private final double AVATAR_SIZE = 0.2;
     private final double CAM_DIST_Y = 1;    // vertical distance from the avatar (when camera is 3rd person)
     private final double CAM_DIST_GROUND = 3;// how far behind the avatar you want the camera (when camera is 3rd person)
     private final int ROTATION_STEP = 30;
