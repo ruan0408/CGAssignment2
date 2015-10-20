@@ -1,5 +1,7 @@
 package ass2.spec;
 
+import javax.media.opengl.GL2;
+
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.sun.deploy.util.BufferUtil;
 
@@ -10,6 +12,8 @@ import javax.media.opengl.glu.GLU;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+
+import javax.media.opengl.GL2;
 
 /**
  * Created by gervasio on 18/10/15.
@@ -100,13 +104,22 @@ public class Tardis {
             "    gl_FragColor = color;\n" +
             "}";
 
+    private static double HEIGHT = 1.5;
+    private static double BASE = 0.75;
 
     private int shaderProgram = Integer.MIN_VALUE;
     private int shaderProgramNight;
 
-    double[] myPos;
+    static MyTexture tardisTextFront;
+    static MyTexture tardisTextSide;
+    static MyTexture tardisTextFloor;
+    static MyTexture texture;
 
-    public static MyTexture texture;
+    double[] myPos;
+    private FloatBuffer cubeFaceVertices;
+    private ShortBuffer indices;
+    private int VBOVertices;
+    private int VBOIndices;
 
     public Tardis(double x, double y, double z){
         myPos = new double[3];
@@ -129,16 +142,13 @@ public class Tardis {
         }
         if(isNight) gl.glUseProgram(shaderProgramNight);
         else gl.glUseProgram(shaderProgram);
-        gl.glPushMatrix();
-        gl.glTranslated(myPos[0],myPos[1]+1.1,myPos[2]);
-        drawTardisBody(gl);
-        gl.glPopMatrix();
-    }
 
-    private FloatBuffer cubeFaceVertices;
-    private ShortBuffer indices;
-    private int VBOVertices;
-    private int VBOIndices;
+        gl.glPushMatrix();
+        {
+            gl.glTranslated(myPos[0], myPos[1] + 1.1, myPos[2]);
+            drawTardisBody(gl);
+        }gl.glPopMatrix();
+    }
 
     private void initTardisBodyVBO(GL2 gl) {
         float[] vertexArray = {
@@ -193,5 +203,61 @@ public class Tardis {
             gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
 
         }gl.glDisableClientState(GL2.GL_VERTEX_ARRAY);
+
+        float white[] = {1f, 1f, 1f, 1.0f};
+        gl.glPushMatrix();{
+            // Material properties of the tardis' body
+            gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white,0);
+            gl.glTranslated(myPos[0],myPos[1],myPos[2]);
+            drawTardis(gl);
+        } gl.glPopMatrix();
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
+    }
+
+    private void drawTardis(GL2 gl) {
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, Tardis.tardisTextFloor.getTextureId());
+        gl.glEnable(GL2.GL_POLYGON_OFFSET_FILL);
+        gl.glPolygonOffset(-1f,-1f);//make tardis floor higher than ground.
+        gl.glBegin(GL2.GL_QUADS);
+        {   //ceiling
+            gl.glTexCoord2d(0, 0);gl.glVertex3d(-BASE/2, 0, -BASE/2);
+            gl.glTexCoord2d(1, 0);gl.glVertex3d(BASE/2, 0, -BASE/2);
+            gl.glTexCoord2d(1, 1);gl.glVertex3d(BASE/2, 0, BASE/2);
+            gl.glTexCoord2d(0, 1);gl.glVertex3d(-BASE/2, 0, BASE/2);
+
+            //floor
+            gl.glTexCoord2d(0, 0);gl.glVertex3d(-BASE/2, HEIGHT, -BASE/2);
+            gl.glTexCoord2d(1, 0);gl.glVertex3d(-BASE/2, HEIGHT, BASE/2);
+            gl.glTexCoord2d(1, 1);gl.glVertex3d(BASE/2, HEIGHT, BASE/2);
+            gl.glTexCoord2d(0, 1);gl.glVertex3d(BASE/2, HEIGHT, -BASE/2);
+        }gl.glEnd();
+
+        gl.glDisable(GL2.GL_POLYGON_OFFSET_FILL);
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, Tardis.tardisTextFront.getTextureId());
+        gl.glBegin(GL2.GL_QUADS); {
+            gl.glTexCoord2d(0, 0);gl.glVertex3d(-BASE/ 2, 0, -BASE / 2);
+            gl.glTexCoord2d(1, 0);gl.glVertex3d(-BASE/ 2, 0, BASE / 2);
+            gl.glTexCoord2d(1, 1);gl.glVertex3d(-BASE/ 2, HEIGHT, BASE / 2);
+            gl.glTexCoord2d(0, 1);gl.glVertex3d(-BASE/ 2, HEIGHT, -BASE / 2);
+        }gl.glEnd();
+
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, Tardis.tardisTextSide.getTextureId());
+        gl.glBegin(GL2.GL_QUADS);{
+            gl.glTexCoord2d(0, 0);gl.glVertex3d(-BASE/ 2, 0, BASE / 2);
+            gl.glTexCoord2d(1, 0);gl.glVertex3d(BASE/ 2, 0, BASE / 2);
+            gl.glTexCoord2d(1, 1);gl.glVertex3d(BASE/ 2, HEIGHT, BASE / 2);
+            gl.glTexCoord2d(0, 1);gl.glVertex3d(-BASE/ 2, HEIGHT, BASE / 2);
+
+            gl.glTexCoord2d(0, 0);gl.glVertex3d(BASE / 2, 0, BASE / 2);
+            gl.glTexCoord2d(1, 0);gl.glVertex3d(BASE / 2, 0, -BASE / 2);
+            gl.glTexCoord2d(1, 1);gl.glVertex3d(BASE / 2, HEIGHT, -BASE / 2);
+            gl.glTexCoord2d(0, 1);gl.glVertex3d(BASE / 2, HEIGHT, BASE / 2);
+
+            gl.glTexCoord2d(0, 0);gl.glVertex3d(BASE / 2, 0, -BASE / 2);
+            gl.glTexCoord2d(1, 0);gl.glVertex3d(-BASE / 2, 0, -BASE / 2);
+            gl.glTexCoord2d(1, 1);gl.glVertex3d(-BASE / 2, HEIGHT, -BASE / 2);
+            gl.glTexCoord2d(0, 1);gl.glVertex3d(BASE / 2, HEIGHT, -BASE / 2);
+        }gl.glEnd();
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
     }
 }
