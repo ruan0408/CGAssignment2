@@ -108,7 +108,7 @@ public class Game extends JFrame implements GLEventListener{
         //Night time light settings
         float radius = 2f; //light radius
         float[] low_diffuse = {1f,1f,1f,1f}; //lower diffuse light
-        float[] low_ambient = {0.4f,0.4f,0.4f,1f}; //very low ambient light
+        float[] low_ambient = {0.8f,0.8f,0.8f,1f}; //very low ambient light
 
         float[] pos = {(float)(avatar.getPosition()[0]),
                         (float)(avatar.getPosition()[1]),
@@ -127,7 +127,7 @@ public class Game extends JFrame implements GLEventListener{
         gl.glLightf(GL2.GL_LIGHT1, GL2.GL_QUADRATIC_ATTENUATION, 1f/(2*radius*radius));
 
         gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_CUTOFF, 25.0F);
-        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION,new float[] {0,(float) avatar.getPosition()[1],0}, 0);
+        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION,new float[] {0,(float) avatar.getPosition()[1],(float)avatar.getPosition()[2]}, 0);
        // gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_EXPONENT, 1f);
         // normalise normals (!)
         // this is necessary to make lighting work properly
@@ -140,7 +140,7 @@ public class Game extends JFrame implements GLEventListener{
         Tree.trunkTexture =  new MyTexture(gl, TRUNK_TEXT,TRUNK_TEXT_EXT,true);
         Terrain.sunTexture = new MyTexture(gl, SUN_TEXT, SUN_TEXT_EXT, true);
 
-        Tardis.texture = new MyTexture(gl, TARDIS_TEXT, TARDIS_TEXT_EXT, true);
+        Tardis.texture = new MyTexture(gl, LEAVES_TEXT, LEAVES_TEXT_EXT, true);
         Tardis.tardisTextFront = new MyTexture(gl, TARDIS_TEXT_FRONT, TARDIS_TEXT_FRONT_EXT, true);
         Tardis.tardisTextSide = new MyTexture(gl, TARDIS_TEXT_SIDE, TARDIS_TEXT_SIDE_EXT, true);
         Tardis.tardisTextFloor = new MyTexture(gl, TARDIS_TEXT_FLOOR, TARDIS_TEXT_FLOOR_EXT, true);

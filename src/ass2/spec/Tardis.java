@@ -28,80 +28,65 @@ public class Tardis {
             "#version 120\n" +
                     "varying vec3 N;\n" +
                     "varying vec4 v;\n" +
-                    "void main (void) {\n" +
-                    "    v = gl_ModelViewMatrix * gl_Vertex;\n" +
-                    "    N = vec3(normalize(gl_NormalMatrix * normalize(gl_Normal)));\n" +
-                    "        gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n" +
-                    "}\n";
+                    "void main(){\n" +
+                    "  v = gl_ModelViewMatrix * gl_Vertex;\n" +
+                    "  N = vec3(normalize(gl_NormalMatrix * normalize(gl_Normal)));\n" +
+                    "  gl_TexCoord[0] = gl_MultiTexCoord0;\n" +
+                    "  gl_Position = ftransform();\n" +
+                    " }";
 
-    private static final String fragmentShaderSourceCode = "#version 120\n" +
-            "varying vec3 N;\n" +
-            "varying vec4 v;\n" +
-            "void main (void) {\t\n" +
-            "   vec4 ambient, globalAmbient;\n" +
-            "ambient =  gl_LightSource[0].ambient * gl_FrontMaterial.ambient;\n" +
-            "globalAmbient = gl_LightModel.ambient * gl_FrontMaterial.ambient;\n" +
-            "vec3 normal, lightDir; \n" +
-            "vec4 diffuse;\n" +
-            "float NdotL;\n" +
-            "normal = normalize(N);\n" +
-            "lightDir = normalize(vec3(gl_LightSource[0].position));\n" +
-            "    NdotL = max(dot(normal, lightDir), 0.0); \n" +
-            "     diffuse = NdotL * gl_FrontMaterial.diffuse * gl_LightSource[0].diffuse; \n" +
-            "    vec4 specular = vec4(0.0,0.0,0.0,1);\n" +
-            "    float NdotHV;\n" +
-            "    float NdotR;\n" +
-            "    vec3 dirToView = normalize(vec3(-v));\n" +
-            "    vec3 R = normalize(reflect(-lightDir,normal));\n" +
-            "    vec3 H =  normalize(lightDir+dirToView); \n" +
-            "if (NdotL > 0.0) {\n" +
-            "NdotR = max(dot(R,dirToView ),0.0);\n" +
-            "NdotHV = max(dot(normal, H),0.0);\n" +
-            "specular = gl_FrontMaterial.specular * gl_LightSource[0].specular * pow(NdotHV,gl_FrontMaterial.shininess);\n" +
-            "}\n" +
-            "specular = clamp(specular,0,1);\n" +
-            "    gl_FragColor = gl_FrontMaterial.emission + globalAmbient + ambient + diffuse + specular;\t\n" +
-            "}\n";
+    private static final String fragmentShaderSourceCode =
+            "#version 120\n" +
+                    "uniform sampler2D colorMap;\n" +
+                    "varying vec3 N;\n" +
+                    "            varying vec4 v;\n" +
+                    "            void main (void) {\n" +
+                    "               vec4 ambient, globalAmbient;\n" +
+                    "            ambient =  gl_LightSource[0].ambient * gl_FrontMaterial.ambient;\n" +
+                    "            globalAmbient = gl_LightModel.ambient * gl_FrontMaterial.ambient;\n" +
+                    "            vec3 normal, lightDir; \n" +
+                    "            vec4 diffuse;\n" +
+                    "            float NdotL;\n" +
+                    "            normal = normalize(N);\n" +
+                    "            lightDir = normalize(vec3(gl_LightSource[0].position));\n" +
+                    "                NdotL = max(dot(normal, lightDir), 0.0); \n" +
+                    "                 diffuse = NdotL * gl_FrontMaterial.diffuse * gl_LightSource[0].diffuse; \n" +
+                    "                vec4 specular = vec4(0.0,0.0,0.0,1);\n" +
+                    "                float NdotHV;\n" +
+                    "                float NdotR;\n" +
+                    "                vec3 dirToView = normalize(vec3(-v));\n" +
+                    "                vec3 R = normalize(reflect(-lightDir,normal));\n" +
+                    "                vec3 H =  normalize(lightDir+dirToView); \n" +
+                    "            if (NdotL > 0.0) {\n" +
+                    "            NdotR = max(dot(R,dirToView ),0.0);\n" +
+                    "            NdotHV = max(dot(normal, H),0.0);\n" +
+                    "            specular = gl_FrontMaterial.specular * gl_LightSource[0].specular * pow(NdotHV,gl_FrontMaterial.shininess);\n" +
+                    "            }\n" +
+                    "            specular = clamp(specular,0,1);\n" +
+                    "                gl_FragColor = (gl_FrontMaterial.emission + globalAmbient + ambient + diffuse + specular)*texture2D(colorMap, gl_TexCoord[0].st );\n" +
+                    "            }";
 
     private static final String vertexShaderSourceCodeNight =
             "#version 120\n" +
-            "varying vec4 diffuse,globalAmbient,ambient, v;\n" +
-            "varying vec3 normal,halfVector;\n" +
+            "uniform sampler2D colorMap;\n" +
+            "varying vec4 v;\n" +
             "void main()\n" +
             "{   \n" +
-            "    vec3 aux;\n" +
-            "    normal = normalize(gl_NormalMatrix * gl_Normal);\n" +
             "    v = gl_ModelViewMatrix * gl_Vertex;\n" +
-            "    halfVector = gl_LightSource[1].halfVector.xyz;\n" +
-            "    diffuse = gl_FrontMaterial.diffuse * gl_LightSource[1].diffuse;\n" +
-            "    ambient = gl_FrontMaterial.ambient * gl_LightSource[1].ambient;\n" +
-            "    globalAmbient = gl_LightModel.ambient * gl_FrontMaterial.ambient;\n" +
+            "    gl_TexCoord[0] = gl_MultiTexCoord0;\n" +
             "    gl_Position = ftransform();\n" +
             "} ";
 
     private static final String fragmentShaderSourceCodeNight = "#version 120\n" +
-            "varying vec4 diffuse,globalAmbient, ambient, v;\n" +
-            "varying vec3 normal,halfVector;\n" +
+            "varying vec4 v;\n" +
+            "uniform sampler2D colorMap;\n" +
             "void main()\n" +
             "{\n" +
-            "    vec3 N,normalizedHalfVector,viewV,lightDir;\n" +
-            "    float NdotL,NdotHV;\n" +
-            "    vec4 color = globalAmbient;\n" +
-            "    float attenuation, dist;\n" +
-            "    N = normalize(normal);\n" +
+            "    vec3 lightDir;\n" +
+            "    float dist;\n" +
             "    lightDir = vec3(gl_LightSource[1].position-v);\n" +
             "    dist = length(lightDir);\n" +
-            "    NdotL = max(dot(N,normalize(lightDir)),0.0);\n" +
-            "    if (NdotL > 0.0) {\n" +
-            "        attenuation = 1.0 / (gl_LightSource[1].constantAttenuation +\n" +
-            "                gl_LightSource[1].linearAttenuation * dist +\n" +
-            "                gl_LightSource[1].quadraticAttenuation * dist * dist);\n" +
-            "        color += attenuation * (diffuse * NdotL + ambient);\n" +
-            "        normalizedHalfVector = normalize(halfVector);\n" +
-            "        NdotHV = max(dot(N,normalizedHalfVector),0.0);\n" +
-            "        color += attenuation * gl_FrontMaterial.specular * gl_LightSource[1].specular * pow(NdotHV,gl_FrontMaterial.shininess);\n" +
-            "    }\n" +
-            "    gl_FragColor = color;\n" +
+            "    gl_FragColor = (2.0/(dist*dist))*texture2D(colorMap, gl_TexCoord[0].st);\n" +
             "}";
 
     private static double HEIGHT = 1.5;
@@ -145,8 +130,9 @@ public class Tardis {
 
         gl.glPushMatrix();
         {
-            gl.glTranslated(myPos[0], myPos[1] + 1.1, myPos[2]);
+            gl.glTranslated(myPos[0], myPos[1]+1, myPos[2]);
             drawTardisBody(gl);
+           // drawTardis(gl);
         }gl.glPopMatrix();
     }
 
@@ -192,25 +178,19 @@ public class Tardis {
     }
 
     private void drawTardisBody(GL2 gl) {
+        float white[] = {1f, 1f, 1f, 1.0f};
         gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
         {
             gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBOVertices);
             gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0);
             gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, VBOIndices);
+            gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white,0);
 
             gl.glBindTexture(GL2.GL_TEXTURE_2D, texture.getTextureId());
             gl.glDrawElements(GL.GL_TRIANGLES, indices.capacity(), GL.GL_UNSIGNED_SHORT, 0);
-            gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
 
         }gl.glDisableClientState(GL2.GL_VERTEX_ARRAY);
 
-        float white[] = {1f, 1f, 1f, 1.0f};
-        gl.glPushMatrix();{
-            // Material properties of the tardis' body
-            gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white,0);
-            gl.glTranslated(myPos[0],myPos[1],myPos[2]);
-            drawTardis(gl);
-        } gl.glPopMatrix();
         gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
     }
 
