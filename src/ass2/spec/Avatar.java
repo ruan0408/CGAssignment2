@@ -114,15 +114,38 @@ public class Avatar implements KeyListener{
      * @param gl
      */
     private void draw(GL2 gl) {
-        float[] red = {1f,0f,0f,1f};
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, red, 0);
+        float[] white = {1f,1f,1f,1f};
+        float[] pink = {1f,0.3f,0.56f,1f};
+        float[] yellow = {1,1,0};
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, yellow, 0);
         gl.glPushMatrix();{
-            //0.1 accounts for the height of the teapot
-            gl.glTranslated(position[0], position[1] + 0.1, position[2]);
+            gl.glTranslated(position[0], position[1]+2*AVATAR_SIZE, position[2]);
             gl.glRotated(rotation, 0, 1, 0);
 
             GLUT glut = new GLUT();
-            glut.glutSolidTeapot(AVATAR_SIZE);
+
+            gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, pink, 0);
+            glut.glutSolidSphere(AVATAR_SIZE,15,15);
+
+            gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white, 0);
+
+            gl.glTranslated(0,0,AVATAR_SIZE/2);
+            gl.glRotated(90,1,0,0);
+            glut.glutSolidCylinder(AVATAR_SIZE/8,2*AVATAR_SIZE,15,15);
+            gl.glRotated(-90,1,0,0);
+
+            gl.glTranslated(0,0,-AVATAR_SIZE);
+            gl.glRotated(90,1,0,0);
+            glut.glutSolidCylinder(AVATAR_SIZE/8,2*AVATAR_SIZE,15,15);
+
+           /* gl.glRotated(-90,1,0,0);
+            glut.glutSolidCone(AVATAR_SIZE,0.5,15,15);
+            gl.glRotated(90,1,0,0);
+            gl.glTranslated(0,0.5,0);
+            gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, red, 0);
+            glut.glutSolidSphere(AVATAR_SIZE,15,15);
+*/
+            //glut.glutSolidTeapot(AVATAR_SIZE);
         }
         gl.glPopMatrix();
     }
