@@ -28,6 +28,8 @@ public class Game extends JFrame implements GLEventListener{
     private final String LEAVES_TEXT_EXT = "jpg";
     private final String SUN_TEXT = "src/sun.jpg";
     private final String SUN_TEXT_EXT = "jpg";
+    private final String TARDIS_TEXT = "src/tardis.jpg";
+    private final String TARDIS_TEXT_EXT = "jpg";
 
     private final double FOV = 60;
     private final double NEAR_PLANE_DIST = 0.01;
@@ -129,6 +131,7 @@ public class Game extends JFrame implements GLEventListener{
         Tree.leavesTexture =  new MyTexture(gl,LEAVES_TEXT,LEAVES_TEXT_EXT,true);
         Tree.trunkTexture =  new MyTexture(gl, TRUNK_TEXT,TRUNK_TEXT_EXT,true);
         Terrain.sunTexture = new MyTexture(gl, SUN_TEXT, SUN_TEXT_EXT, true);
+        Tardis.texture = new MyTexture(gl, TARDIS_TEXT, TARDIS_TEXT_EXT, true);
 	}
 
 	@Override

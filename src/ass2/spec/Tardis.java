@@ -1,9 +1,15 @@
 package ass2.spec;
 
 import com.jogamp.opengl.util.gl2.GLUT;
+import com.sun.deploy.util.BufferUtil;
 
+import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
+import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.glu.GLU;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 
 /**
  * Created by gervasio on 18/10/15.
@@ -53,7 +59,7 @@ public class Tardis {
             "    gl_FragColor = gl_FrontMaterial.emission + globalAmbient + ambient + diffuse + specular;\t\n" +
             "}\n";
 
-    private static String vertexShaderSourceCodeNight =
+    private static final String vertexShaderSourceCodeNight =
             "#version 120\n" +
             "varying vec4 diffuse,globalAmbient,ambient, v;\n" +
             "varying vec3 normal,halfVector;\n" +
@@ -69,7 +75,7 @@ public class Tardis {
             "    gl_Position = ftransform();\n" +
             "} ";
 
-    private static String fragmentShaderSourceCodeNight = "#version 120\n" +
+    private static final String fragmentShaderSourceCodeNight = "#version 120\n" +
             "varying vec4 diffuse,globalAmbient, ambient, v;\n" +
             "varying vec3 normal,halfVector;\n" +
             "void main()\n" +
@@ -98,8 +104,9 @@ public class Tardis {
     private int shaderProgram = Integer.MIN_VALUE;
     private int shaderProgramNight;
 
-    static MyTexture tardisTexture;
     double[] myPos;
+
+    public static MyTexture texture;
 
     public Tardis(double x, double y, double z){
         myPos = new double[3];
@@ -114,6 +121,7 @@ public class Tardis {
             try {
                 shaderProgram = Shader.initShaders(gl, vertexShaderSourceCode, fragmentShaderSourceCode);
                 shaderProgramNight = Shader.initShaders(gl,vertexShaderSourceCodeNight,fragmentShaderSourceCodeNight);
+                initTardisBodyVBO(gl);
             }catch (Exception e){
                 e.printStackTrace();
                 System.exit(1);
@@ -121,35 +129,69 @@ public class Tardis {
         }
         if(isNight) gl.glUseProgram(shaderProgramNight);
         else gl.glUseProgram(shaderProgram);
-
-        GLUT glut = new GLUT();
-
-        float body[] = {0.08f, 0.0f, 1f, 1.0f};
-        float lamp[] = {0.5f,0.5f,0.5f};
-
-        gl.glPushMatrix();{
-            // Material properties of the tardis' body
-            gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, body,0);
-            float matSpec[] = { 1.0f, 1.0f, 1,0f, 1.0f };
-            float matShine[] = { 10f };
-            float emm[] = {0.0f, 0.0f, 0.4f, 1.0f};
-            gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, matSpec,0);
-            gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, matShine,0);
-            gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, emm,0);
-
-            gl.glTranslated(myPos[0],myPos[1],myPos[2]);
-            glut.glutSolidCube(0.7f);
-
-            gl.glTranslated(0,0.7f,0);
-            glut.glutSolidCube(0.7f);
-            // Material properties of the tardis' lamp
-            gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, lamp,0);
-            gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, new float[] {0.0f,0.0f,0.0f},0);
-
-            gl.glTranslated(0,0.4f,0);
-            glut.glutSolidSphere(0.05,15,15);
-
-        }
+        gl.glPushMatrix();
+        gl.glTranslated(myPos[0],myPos[1]+1.1,myPos[2]);
+        drawTardisBody(gl);
         gl.glPopMatrix();
+    }
+
+    private FloatBuffer cubeFaceVertices;
+    private ShortBuffer indices;
+    private int VBOVertices;
+    private int VBOIndices;
+
+    private void initTardisBodyVBO(GL2 gl) {
+        float[] vertexArray = {
+                -0.5f,  1.3f, -0.5f, //0
+                0.5f,  1.3f, -0.5f,//1
+                0.5f, -1.3f, -0.5f,//2
+                -0.5f, -1.3f, -0.5f,//3
+                -0.5f,  1.3f, 0.5f,//4
+                0.5f,  1.3f, 0.5f,//5
+                0.5f, -1.3f, 0.5f,//6
+                -0.5f, -1.3f, 0.5f//7
+                };
+
+        cubeFaceVertices = FloatBuffer.allocate(vertexArray.length);
+        cubeFaceVertices.put(vertexArray);
+        cubeFaceVertices.flip();
+
+        short[] indexArray={0, 1, 2, 0, 2, 3,
+                            4, 5, 6, 4, 6, 7,
+                            5, 1, 2, 5, 2, 6,
+                            4, 0, 3, 4, 3, 7,
+                            4, 0, 1, 4, 1, 5,
+                            7, 3, 2, 7, 2, 5
+                            };
+        indices = ShortBuffer.allocate(indexArray.length);
+        indices.put(indexArray);
+        indices.flip();
+
+        int[] temp = new int[2];
+        gl.glGenBuffers(2, temp, 0);
+
+        VBOVertices = temp[0];
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBOVertices);
+        gl.glBufferData(GL.GL_ARRAY_BUFFER, cubeFaceVertices.capacity() * 4, cubeFaceVertices, GL.GL_STATIC_DRAW);
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
+
+        VBOIndices = temp[1];
+        gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, VBOIndices);
+        gl.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, indices.capacity() *2, indices, GL.GL_STATIC_DRAW);
+        gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0);
+    }
+
+    private void drawTardisBody(GL2 gl) {
+        gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
+        {
+            gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBOVertices);
+            gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0);
+            gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, VBOIndices);
+
+            gl.glBindTexture(GL2.GL_TEXTURE_2D, texture.getTextureId());
+            gl.glDrawElements(GL.GL_TRIANGLES, indices.capacity(), GL.GL_UNSIGNED_SHORT, 0);
+            gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
+
+        }gl.glDisableClientState(GL2.GL_VERTEX_ARRAY);
     }
 }
