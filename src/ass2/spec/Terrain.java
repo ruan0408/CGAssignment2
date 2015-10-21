@@ -294,13 +294,13 @@ public class Terrain {
             gl.glTexCoord2d(1.0, 1.0);gl.glVertex3d(x1-w*normal1[0], y, z1-w*normal1[1]);
             gl.glTexCoord2d(0.0, 1.0);gl.glVertex3d(x1+w*normal1[0], y, z1+w*normal1[1]);
         }
+        gl.glEnd();
         gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
         gl.glDisable(GL2.GL_POLYGON_OFFSET_FILL);
 
         //Connect to the final point - we just get the final control point
         //double[] endPoint = road.controlPoint(road.size()*3);
         //gl.glVertex3d(endPoint[0], altitude(endPoint[0], endPoint[1]),endPoint[1]);
-        gl.glEnd();
     }
 
     private void drawSun(GL2 gl){

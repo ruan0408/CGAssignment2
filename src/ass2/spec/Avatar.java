@@ -56,7 +56,7 @@ public class Avatar implements KeyListener{
 
         if (isFirstPerson) {
             gl.glRotated(-(rot-90), 0, 1, 0);//-90 to fix initial orientation
-            gl.glTranslated(-pos[0], -pos[1], -pos[2]);
+            gl.glTranslated(-pos[0], -(pos[1]+2*AVATAR_SIZE), -pos[2]);
         } else {
             GLU glu = new GLU();
             double rad = Math.toRadians(rot+180);//+180 because the camera is behind the avatar
