@@ -269,35 +269,41 @@ public class Terrain {
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white, 0);
         double x, z, y, x1, z1;
         double w = road.width()/2;
+
         int numPoints = 16;
         double tIncrement = 1.0/numPoints;
+        double t, t1;
+        double[] normal = null;
 
         gl.glBindTexture(GL2.GL_TEXTURE_2D, Road.texture.getTextureId());
-
+        //gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_LINE);
         // dealing with z-fighting
         gl.glEnable(GL2.GL_POLYGON_OFFSET_FILL);
         gl.glPolygonOffset(-1f, -1f);
-        gl.glBegin(GL2.GL_QUADS);
-        for(int i = 0; i < numPoints*road.size()-1; i++){
-            double t = i*tIncrement;
-            double t1 = (i+1)*tIncrement;
-            double[] normal = road.normal(t);
-            double[] normal1 = road.normal(t1);
-
-            x = road.point(t)[0]; z = road.point(t)[1]; //y = altitude(x-w*normal[0], z-w*normal[1]);
-            x1 = road.point(t1)[0]; z1= road.point(t1)[1]; //y1 = altitude(x1+w-normal1[0], z1-w*normal1[1]);
+        gl.glBegin(GL2.GL_QUAD_STRIP);
+        for(int i = 0; i < numPoints*road.size(); i++){
+            t = i*tIncrement;
+            t1 = (i+1)*tIncrement;
+            //double[] normal = road.normal(t);
+            //double[] normal1 = road.normal(t1);
+            x = road.point(t)[0]; z = road.point(t)[1];
+            // If not last point, estimate new normal. Otherwise, use last normal.
+            if (i != numPoints*road.size()-1) {
+                x1 = road.point(t1)[0]; z1= road.point(t1)[1];
+                normal = MathUtils.normal2d(new double[]{x - x1, z - z1});
+            }
 
             y = altitude(x,z);
             gl.glNormal3d(0, 1, 0);
-            gl.glTexCoord2d(0.0, 0.0);gl.glVertex3d(x+w*normal[0], y, z+w*normal[1]);
-            gl.glTexCoord2d(1.0, 0.0);gl.glVertex3d(x-w*normal[0], y, z-w*normal[1]);
-            gl.glTexCoord2d(1.0, 1.0);gl.glVertex3d(x1-w*normal1[0], y, z1-w*normal1[1]);
-            gl.glTexCoord2d(0.0, 1.0);gl.glVertex3d(x1+w*normal1[0], y, z1+w*normal1[1]);
+            gl.glTexCoord2d(0,i%2);gl.glVertex3d(x+w*normal[0], y, z + w * normal[1]);
+            gl.glTexCoord2d(1,i%2);gl.glVertex3d(x-w*normal[0], y, z-w*normal[1]);
+            //gl.glVertex3d(x1-w*normal1[0], y, z1-w*normal1[1]);
+            //gl.glVertex3d(x1+w*normal1[0], y, z1+w*normal1[1]);
         }
         gl.glEnd();
         gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
         gl.glDisable(GL2.GL_POLYGON_OFFSET_FILL);
-
+        //gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
         //Connect to the final point - we just get the final control point
         //double[] endPoint = road.controlPoint(road.size()*3);
         //gl.glVertex3d(endPoint[0], altitude(endPoint[0], endPoint[1]),endPoint[1]);
