@@ -267,21 +267,16 @@ public class Terrain {
     private void drawRoad(GL2 gl, Road road) {
         float[] white = {1.0f, 1.0f, 1.0f, 1.0f};
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white, 0);
-        //gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, white, 0);
         double x, z, y, x1, z1;
         double w = road.width()/2;
         int numPoints = 16;
         double tIncrement = 1.0/numPoints;
 
-        // Specify how texture values combine with current surface color values.
-        //gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
         gl.glBindTexture(GL2.GL_TEXTURE_2D, Road.texture.getTextureId());
 
         // dealing with z-fighting
-//        gl.glEnable(GL2.GL_POLYGON_OFFSET_FILL);
-//        gl.glEnable(GL2.GL_POLYGON_OFFSET_POINT);
-//        gl.glEnable(GL2.GL_POLYGON_OFFSET_LINE);
-//        gl.glPolygonOffset(-10f, -3f);
+        gl.glEnable(GL2.GL_POLYGON_OFFSET_FILL);
+        gl.glPolygonOffset(-1f, -1f);
         gl.glBegin(GL2.GL_QUADS);
         for(int i = 0; i < numPoints*road.size()-1; i++){
             double t = i*tIncrement;
@@ -291,11 +286,8 @@ public class Terrain {
 
             x = road.point(t)[0]; z = road.point(t)[1]; //y = altitude(x-w*normal[0], z-w*normal[1]);
             x1 = road.point(t1)[0]; z1= road.point(t1)[1]; //y1 = altitude(x1+w-normal1[0], z1-w*normal1[1]);
-            //double y2 = altitude(x+w*normal[0], z+w*normal[1]);
-            //double y3 = altitude(x1+w*normal[0], z1+w*normal[1]);
-            // The altitude of the spine at t is the altitude for the entire road.
-            // We add 0.05 to make sure the road will be on top of the terrain.
-            y = altitude(x,z) + 0.05;
+
+            y = altitude(x,z);
             gl.glNormal3d(0, 1, 0);
             gl.glTexCoord2d(0.0, 0.0);gl.glVertex3d(x+w*normal[0], y, z+w*normal[1]);
             gl.glTexCoord2d(1.0, 0.0);gl.glVertex3d(x-w*normal[0], y, z-w*normal[1]);
@@ -303,9 +295,8 @@ public class Terrain {
             gl.glTexCoord2d(0.0, 1.0);gl.glVertex3d(x1+w*normal1[0], y, z1+w*normal1[1]);
         }
         gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
-//        gl.glDisable(GL2.GL_POLYGON_OFFSET_FILL);
-//        gl.glDisable(GL2.GL_POLYGON_OFFSET_POINT);
-//        gl.glDisable(GL2.GL_POLYGON_OFFSET_LINE);
+        gl.glDisable(GL2.GL_POLYGON_OFFSET_FILL);
+
         //Connect to the final point - we just get the final control point
         //double[] endPoint = road.controlPoint(road.size()*3);
         //gl.glVertex3d(endPoint[0], altitude(endPoint[0], endPoint[1]),endPoint[1]);

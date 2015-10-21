@@ -29,16 +29,6 @@ public class Game extends JFrame implements GLEventListener{
     private final String SUN_TEXT = "src/sun.jpg";
     private final String SUN_TEXT_EXT = "jpg";
 
-    private final String TARDIS_TEXT = "src/tardis.jpg";
-    private final String TARDIS_TEXT_EXT = "jpg";
-
-    private final String TARDIS_TEXT_FRONT = "src/tardisFront.png";
-    private final String TARDIS_TEXT_FRONT_EXT = "png";
-    private final String TARDIS_TEXT_SIDE = "src/tardisSide.png";
-    private final String TARDIS_TEXT_SIDE_EXT = "png";
-    private final String TARDIS_TEXT_FLOOR = "src/tardisFloor.png";
-    private final String TARDIS_TEXT_FLOOR_EXT = "png";
-
     private final double FOV = 60;
     private final double NEAR_PLANE_DIST = 0.01;
     private final double FAR_PLANE_DIST = 20;
@@ -140,13 +130,9 @@ public class Game extends JFrame implements GLEventListener{
         Tree.trunkTexture =  new MyTexture(gl, TRUNK_TEXT,TRUNK_TEXT_EXT,true);
         Terrain.sunTexture = new MyTexture(gl, SUN_TEXT, SUN_TEXT_EXT, true);
 
-        Tardis.texture = new MyTexture(gl, LEAVES_TEXT, LEAVES_TEXT_EXT, true);
-        Tardis.tardisTextFront = new MyTexture(gl, TARDIS_TEXT_FRONT, TARDIS_TEXT_FRONT_EXT, true);
-        Tardis.tardisTextSide = new MyTexture(gl, TARDIS_TEXT_SIDE, TARDIS_TEXT_SIDE_EXT, true);
-        Tardis.tardisTextFloor = new MyTexture(gl, TARDIS_TEXT_FLOOR, TARDIS_TEXT_FLOOR_EXT, true);
-
+        Tardis.loadStaticData(gl);
         Avatar.bodyTexture =  new MyTexture(gl,SUN_TEXT,LEAVES_TEXT_EXT,true);
-//        Avatar.bodyTexture = new MyTexture(gl,AVATAR_TEXT_BODY,AVATAR_TEXT_BODY_EXT,true);
+        //Avatar.bodyTexture = new MyTexture(gl,AVATAR_TEXT_BODY,AVATAR_TEXT_BODY_EXT,true);
 	}
 
 	@Override
@@ -213,8 +199,6 @@ public class Game extends JFrame implements GLEventListener{
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
         avatar.updateView(gl);
         myTerrain.draw(gl);
-//        Tree t2 = new Tree(0,0,-1);
-//        t2.draw(gl);
     }
 
     @Override
