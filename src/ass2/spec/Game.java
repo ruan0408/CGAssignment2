@@ -144,6 +144,9 @@ public class Game extends JFrame implements GLEventListener{
         Tardis.tardisTextFront = new MyTexture(gl, TARDIS_TEXT_FRONT, TARDIS_TEXT_FRONT_EXT, true);
         Tardis.tardisTextSide = new MyTexture(gl, TARDIS_TEXT_SIDE, TARDIS_TEXT_SIDE_EXT, true);
         Tardis.tardisTextFloor = new MyTexture(gl, TARDIS_TEXT_FLOOR, TARDIS_TEXT_FLOOR_EXT, true);
+
+        Avatar.bodyTexture =  new MyTexture(gl,SUN_TEXT,LEAVES_TEXT_EXT,true);
+//        Avatar.bodyTexture = new MyTexture(gl,AVATAR_TEXT_BODY,AVATAR_TEXT_BODY_EXT,true);
 	}
 
 	@Override
