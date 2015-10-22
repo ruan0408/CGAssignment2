@@ -87,7 +87,7 @@ public class Game extends JFrame implements GLEventListener{
         gl.glEnable(GL2.GL_LIGHT0);
 
         //light settings for day time
-        float[] ambient = {.5f, .5f, .5f, 1f};     // low ambient light
+        float[] ambient = {1f, 1f, 1f, 1f};          // full ambient light
         float[] diffuse = { 1f, 1f, 1f, 1f };        // full diffuse colour
         float[] sunLight = Arrays.copyOf(myTerrain.getSunlight(), 4);
         sunLight[3] = 0;
@@ -97,8 +97,8 @@ public class Game extends JFrame implements GLEventListener{
 
         //Night time light settings
         float radius = 2f; //light radius
-        float[] low_diffuse = {1f,1f,1f,1f}; //lower diffuse light
-        float[] low_ambient = {0.8f,0.8f,0.8f,1f}; //very low ambient light
+        float[] low_diffuse = {1f,1f,1f,1f};        //lower diffuse light
+        float[] low_ambient = {0.8f,0.8f,0.8f,1f};  //low ambient light
 
         float[] pos = {(float)(avatar.getPosition()[0]),
                         (float)(avatar.getPosition()[1]),
@@ -119,8 +119,8 @@ public class Game extends JFrame implements GLEventListener{
         gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_CUTOFF, 25.0F);
         gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION,new float[] {0,(float) avatar.getPosition()[1],(float)avatar.getPosition()[2]}, 0);
        // gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_EXPONENT, 1f);
-        // normalise normals (!)
-        // this is necessary to make lighting work properly
+
+        // normalise normals
         gl.glEnable(GL2.GL_NORMALIZE);
         gl.glEnable(GL2.GL_TEXTURE_2D);
 
@@ -131,7 +131,7 @@ public class Game extends JFrame implements GLEventListener{
         Terrain.sunTexture = new MyTexture(gl, SUN_TEXT, SUN_TEXT_EXT, true);
 
         Tardis.loadStaticData(gl);
-        Avatar.bodyTexture =  new MyTexture(gl,SUN_TEXT,LEAVES_TEXT_EXT,true);
+        Avatar.bodyTexture =  new MyTexture(gl,SUN_TEXT, SUN_TEXT_EXT,true);
         //Avatar.bodyTexture = new MyTexture(gl,AVATAR_TEXT_BODY,AVATAR_TEXT_BODY_EXT,true);
 	}
 

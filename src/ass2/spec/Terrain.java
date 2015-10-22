@@ -260,7 +260,6 @@ public class Terrain {
     /**
      * Draws a given road.
      * Roads don't draw themselves because they need information about the terrain.
-     * This is not pretty.
      * @param gl
      * @param road
      */
