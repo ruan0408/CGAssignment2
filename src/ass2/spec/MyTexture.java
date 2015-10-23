@@ -13,7 +13,6 @@ import javax.media.opengl.GL2;
 import javax.media.opengl.GLProfile;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class MyTexture {
@@ -40,7 +39,7 @@ public class MyTexture {
             //This library call flips all images the same way
             data = AWTTextureIO.newTextureData(GLProfile.getDefault(), img, false);
 
-        } catch (IOException exc) {
+        } catch (Exception exc) {
             System.err.println(fileName);
             exc.printStackTrace();
             System.exit(1);

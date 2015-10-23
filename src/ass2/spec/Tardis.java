@@ -13,16 +13,16 @@ import java.nio.FloatBuffer;
 //there can be more than one TARDIS per map =)
 public class Tardis {
 
-    private static final String vertexShaderDayPath = "src/vertexShaderDay.glsl";
-    private static final String fragmentShaderDayPath = "src/fragmentShaderDay.glsl";
-    private static final String vertexShaderNightPath = "src/vertexShaderNight.glsl";
-    private static final String fragmentShaderNightPath = "src/fragmentShaderNight.glsl";
+    private static final String vertexShaderDayPath = "src/res/vertexShaderDay.glsl";
+    private static final String fragmentShaderDayPath = "src/res/fragmentShaderDay.glsl";
+    private static final String vertexShaderNightPath = "src/res/vertexShaderNight.glsl";
+    private static final String fragmentShaderNightPath = "src/res/fragmentShaderNight.glsl";
 
-    private static final String TARDIS_TEXT_FRONT = "src/tardisFront.png";
+    private static final String TARDIS_TEXT_FRONT = "src/res/tardisFront.png";
     private static final String TARDIS_TEXT_FRONT_EXT = "png";
-    private static final String TARDIS_TEXT_SIDE = "src/tardisSide.png";
+    private static final String TARDIS_TEXT_SIDE = "src/res/tardisSide.png";
     private static final String TARDIS_TEXT_SIDE_EXT = "png";
-    private static final String TARDIS_TEXT_FLOOR = "src/tardisFloor.png";
+    private static final String TARDIS_TEXT_FLOOR = "src/res/tardisFloor.png";
     private static final String TARDIS_TEXT_FLOOR_EXT = "png";
 
     static MyTexture tardisTextFront;
@@ -36,7 +36,7 @@ public class Tardis {
     private static int shaderProgramDay;
     private static int shaderProgramNight;
 
-    // 4 faces
+    // 4 faces, floor and ceiling
     private static float[] vertexArray = {
             -BASE / 2, 0, -BASE / 2, -BASE / 2, 0, BASE / 2, -BASE / 2, HEIGHT, BASE / 2, -BASE / 2, HEIGHT, -BASE / 2,
             -BASE / 2, 0, BASE / 2, BASE / 2, 0, BASE / 2, BASE / 2, HEIGHT, BASE / 2, -BASE / 2, HEIGHT, BASE / 2,

@@ -18,15 +18,15 @@ import java.util.Arrays;
  */
 public class Game extends JFrame implements GLEventListener{
 
-    private final String TERRAIN_TEXT = "src/dirtGrass.jpg";
+    private final String TERRAIN_TEXT = "src/res/dirtGrass.jpg";
     private final String TERRAIN_TEXT_EXT = "jpg";
-    private final String ROAD_TEXT = "src/asphalt.jpg";
+    private final String ROAD_TEXT = "src/res/asphalt.jpg";
     private final String ROAD_TEXT_EXT = "jpg";
-    private final String TRUNK_TEXT = "src/trunk.jpg";
+    private final String TRUNK_TEXT = "src/res/trunk.jpg";
     private final String TRUNK_TEXT_EXT = "jpg";
-    private final String LEAVES_TEXT = "src/leaves.jpg";
+    private final String LEAVES_TEXT = "src/res/leaves.jpg";
     private final String LEAVES_TEXT_EXT = "jpg";
-    private final String SUN_TEXT = "src/sun.jpg";
+    private final String SUN_TEXT = "src/res/sun.jpg";
     private final String SUN_TEXT_EXT = "jpg";
 
     private final double FOV = 60;
