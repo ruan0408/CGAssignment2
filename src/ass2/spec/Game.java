@@ -8,7 +8,6 @@ import javax.media.opengl.glu.GLU;
 import javax.swing.*;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
 
 
 /**
@@ -18,15 +17,16 @@ import java.util.Arrays;
  */
 public class Game extends JFrame implements GLEventListener{
 
-    private final String TERRAIN_TEXT = "src/res/dirtGrass.jpg";
+    public static final float SPOTLIGHT_CUTOFF = 25.0F;
+    private final String TERRAIN_TEXT = "/res/dirtGrass.jpg";
     private final String TERRAIN_TEXT_EXT = "jpg";
-    private final String ROAD_TEXT = "src/res/asphalt.jpg";
+    private final String ROAD_TEXT = "/res/asphalt.jpg";
     private final String ROAD_TEXT_EXT = "jpg";
-    private final String TRUNK_TEXT = "src/res/trunk.jpg";
+    private final String TRUNK_TEXT = "/res/trunk.jpg";
     private final String TRUNK_TEXT_EXT = "jpg";
-    private final String LEAVES_TEXT = "src/res/leaves.jpg";
+    private final String LEAVES_TEXT = "/res/leaves.jpg";
     private final String LEAVES_TEXT_EXT = "jpg";
-    private final String SUN_TEXT = "src/res/sun.jpg";
+    private final String SUN_TEXT = "/res/sun.jpg";
     private final String SUN_TEXT_EXT = "jpg";
 
     private final double FOV = 60;
@@ -35,15 +35,34 @@ public class Game extends JFrame implements GLEventListener{
 
     private Terrain myTerrain;
     private Avatar avatar;
+    public static final float[] DAY_LIGHT = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
+    public static final float[] TWILIGHT = new float[]{0.6f, 0.3f, 0.6f, 1.0f};
+    public static final float[] EARLY_DAY_LIGHT = new float[]{0.7f, 0.7f, 0.7f, 1.0f};
+    public static final float[] AMBIENT_LIGHT = new float[]{1f, 1f, 1f, 1f};
+    public static final float[] DIFFUSE_LIGHT = new float[]{1f, 1f, 1f, 1f};
+    public static final float SPOTLIGHT_RADIUS = 2f;
+    public static final float[] AMBIENT_LIGHT_NIGHT = new float[]{0.5f, 0.5f, 0.5f, 1f};
+
+    /**
+     * Load a level file and display it.
+     * 
+     * @param args - The first argument is a level file in JSON format
+     * @throws FileNotFoundException
+     */
+    public static void main(String[] args) throws FileNotFoundException {
+        Terrain terrain = LevelIO.load(new File(args[0]));
+        Game game = new Game(terrain);
+        game.run();
+    }
 
     public Game(Terrain terrain) {
-    	super("Assignment 2");
+        super("Assignment 2");
         myTerrain = terrain;
         avatar = new Avatar(terrain);
         myTerrain.setMyAvatar(avatar);
     }
-    
-    /** 
+
+    /**
      * Run the game.
      */
     public void run() {
@@ -63,81 +82,18 @@ public class Game extends JFrame implements GLEventListener{
         setVisible(true);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
-    
-    /**
-     * Load a level file and display it.
-     * 
-     * @param args - The first argument is a level file in JSON format
-     * @throws FileNotFoundException
-     */
-    public static void main(String[] args) throws FileNotFoundException {
-        Terrain terrain = LevelIO.load(new File(args[0]));
-        Game game = new Game(terrain);
-        game.run();
-    }
 
 	@Override
     public void init(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
-        gl.glEnable(GL2.GL_DEPTH_TEST);
-
-        // enable lighting
-        gl.glEnable(GL2.GL_LIGHTING);
-        //Turn on default light
-        gl.glEnable(GL2.GL_LIGHT0);
-
-        //light settings for day time
-        float[] ambient = {1f, 1f, 1f, 1f};          // full ambient light
-        float[] diffuse = { 1f, 1f, 1f, 1f };        // full diffuse colour
-        float[] sunLight = Arrays.copyOf(myTerrain.getSunlight(), 4);
-        sunLight[3] = 0;
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, sunLight, 0);
-
-        //Night time light settings
-        float radius = 2f; //light radius
-        float[] low_diffuse = {1f,1f,1f,1f};        //lower diffuse light
-        float[] low_ambient = {0.8f,0.8f,0.8f,1f};  //low ambient light
-
-        float[] pos = {(float)(avatar.getPosition()[0]),
-                        (float)(avatar.getPosition()[1]),
-                        (float)(avatar.getPosition()[2]),1}; //avatar position
-
-        //darker ambient and diffuse light
-        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, low_ambient, 0);
-        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, diffuse, 0);
-
-        //sets light source position to the avatar's
-         gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, pos, 0);
-
-        //attenuates light, making it weaker the further away from the source it is.
-        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_CONSTANT_ATTENUATION, 1f);
-        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_LINEAR_ATTENUATION, 1f/(2*radius));
-        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_QUADRATIC_ATTENUATION, 1f/(2*radius*radius));
-
-        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_CUTOFF, 25.0F);
-        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION,new float[] {0,(float) avatar.getPosition()[1],(float)avatar.getPosition()[2]}, 0);
-       // gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_EXPONENT, 1f);
-
-        // normalise normals
-        gl.glEnable(GL2.GL_NORMALIZE);
-        gl.glEnable(GL2.GL_TEXTURE_2D);
-
-        Terrain.texture = new MyTexture(gl,TERRAIN_TEXT,TERRAIN_TEXT_EXT,true);
-        Road.texture =  new MyTexture(gl,ROAD_TEXT,ROAD_TEXT_EXT,true);
-        Tree.leavesTexture =  new MyTexture(gl,LEAVES_TEXT,LEAVES_TEXT_EXT,true);
-        Tree.trunkTexture =  new MyTexture(gl, TRUNK_TEXT,TRUNK_TEXT_EXT,true);
-        Terrain.sunTexture = new MyTexture(gl, SUN_TEXT, SUN_TEXT_EXT, true);
-
-        Tardis.loadStaticData(gl);
-        Avatar.bodyTexture =  new MyTexture(gl,SUN_TEXT, SUN_TEXT_EXT,true);
-        //Avatar.bodyTexture = new MyTexture(gl,AVATAR_TEXT_BODY,AVATAR_TEXT_BODY_EXT,true);
+        setEnables(gl);
+        setSunLightProperties(gl);
+        setSpotlightProperties(gl);
+        loadStaticData(gl);
 	}
 
 	@Override
-	public void reshape(GLAutoDrawable drawable, int x, int y, int width,
-			int height) {
+	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
         GL2 gl = drawable.getGL().getGL2();
         gl.glMatrixMode(GL2.GL_PROJECTION);
         gl.glLoadIdentity();
@@ -150,57 +106,83 @@ public class Game extends JFrame implements GLEventListener{
 
     @Override
     public void display(GLAutoDrawable drawable) {
+
         GL2 gl = drawable.getGL().getGL2();
-        gl.glLoadIdentity();
-
-        //sets parameters for night time
-        if(myTerrain.isNightTime()) {
-            //dark blue background
-            gl.glClearColor(0f, 0f, 0.03f, 0);
-
-/*            float[] pos = {(float)(avatar.getPosition()[0]),
-                    (float)(avatar.getPosition()[1]),
-                    (float)(avatar.getPosition()[2]),1}; //avatar position
-            gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, pos, 0);*/
-
-            gl.glDisable(GL2.GL_LIGHT0);
-            gl.glEnable(GL2.GL_LIGHT1);
-        }
-
-        //sets default parameters, used during day time
-        else {
-            float[] lightColor;
-            float[] fullDayLight = {1.0f,1.0f,1.0f,1.0f};
-            float[] twilight = {0.6f,0.3f,0.6f,1.0f};
-            float[] earlyDayLight = {0.7f,0.7f,0.7f,1.0f};
-
-            float sunAngle = myTerrain.getCurrentSunRotation();
-
-            if(sunAngle >= 0 && sunAngle <= 120) {
-                lightColor = fullDayLight;
-            }
-            else if(sunAngle > 120 && sunAngle <= 240){
-                lightColor = twilight;
-            }
-            else lightColor = earlyDayLight;
-
-            if(myTerrain.isSunPositionChanged()){
-                float[] sunLight = Arrays.copyOf(myTerrain.getSunlight(), 4);
-                sunLight[3] = 1;
-                gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, sunLight, 0);
-                myTerrain.setSunPositionChanged(false);
-            }
-            gl.glDisable(GL2.GL_LIGHT1);
-            gl.glEnable(GL2.GL_LIGHT0);
-            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, lightColor, 0);
-            gl.glClearColor(1, 1, 1, 0);
-        }
+        if (myTerrain.isNightTime()) gl.glClearColor(0f, 0f, 0.1f, 0);
+        else gl.glClearColor(1,1,1,0);
 
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+        gl.glLoadIdentity();
+
         avatar.updateView(gl);
         myTerrain.draw(gl);
+        correctLighting(gl);
     }
 
     @Override
     public void dispose(GLAutoDrawable drawable) {}
+
+    private void setEnables(GL2 gl) {
+        gl.glEnable(GL2.GL_DEPTH_TEST);
+        gl.glEnable(GL2.GL_LIGHTING);
+        gl.glEnable(GL2.GL_LIGHT0);
+        gl.glEnable(GL2.GL_NORMALIZE);
+        gl.glEnable(GL2.GL_TEXTURE_2D);
+    }
+
+    private void setSunLightProperties(GL2 gl) {
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, AMBIENT_LIGHT, 0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, DIFFUSE_LIGHT, 0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, myTerrain.getSunLightHomogeneous(), 0);
+    }
+
+    private void setSpotlightProperties(GL2 gl) {
+        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, avatar.getPositionHomogeneousFloat(), 0);
+        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, AMBIENT_LIGHT_NIGHT, 0);
+        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, DIFFUSE_LIGHT, 0);
+
+        // Attenuation factor
+        //gl.glLightf(GL2.GL_LIGHT1, GL2.GL_CONSTANT_ATTENUATION, 1f);
+        //gl.glLightf(GL2.GL_LIGHT1, GL2.GL_LINEAR_ATTENUATION, 1f/(2* SPOTLIGHT_RADIUS));
+        //gl.glLightf(GL2.GL_LIGHT1, GL2.GL_QUADRATIC_ATTENUATION, 1f/(2* SPOTLIGHT_RADIUS * SPOTLIGHT_RADIUS));
+
+        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_CUTOFF, SPOTLIGHT_CUTOFF);
+        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_EXPONENT, 4);
+        //gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION,new float[] {0f,0f,1f}, 0);
+        //gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION,new float[] {0,(float) avatar.getPosition()[1],(float)avatar.getPosition()[2]}, 0);
+    }
+
+    private void loadStaticData(GL2 gl) {
+        Terrain.texture = new MyTexture(gl,TERRAIN_TEXT,TERRAIN_TEXT_EXT,true);
+        Road.texture =  new MyTexture(gl,ROAD_TEXT,ROAD_TEXT_EXT,true);
+        Tree.leavesTexture =  new MyTexture(gl,LEAVES_TEXT,LEAVES_TEXT_EXT,true);
+        Tree.trunkTexture =  new MyTexture(gl, TRUNK_TEXT,TRUNK_TEXT_EXT,true);
+        Terrain.sunTexture = new MyTexture(gl, SUN_TEXT, SUN_TEXT_EXT, true);
+
+        Tardis.loadStaticData(gl);
+        Avatar.bodyTexture =  new MyTexture(gl,SUN_TEXT, SUN_TEXT_EXT,true);
+    }
+
+    private void correctLighting(GL2 gl) {
+        float[] lightColor;
+        if(myTerrain.isNightTime()) {
+            gl.glDisable(GL2.GL_LIGHT0);
+            gl.glEnable(GL2.GL_LIGHT1);
+            gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_CUTOFF, 25.0F);
+            gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, avatar.getPositionHomogeneousFloat(), 0);
+            gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION, avatar.getForwardVector(), 0);
+        } else {
+            float sunAngle = myTerrain.getCurrentSunRotation();
+
+            if(sunAngle >= 0 && sunAngle <= 120) lightColor = DAY_LIGHT;
+            else if(sunAngle > 120 && sunAngle <= 240) lightColor = TWILIGHT;
+            else lightColor = EARLY_DAY_LIGHT;
+
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, myTerrain.getSunLightHomogeneous(), 0);
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, lightColor, 0);
+
+            gl.glDisable(GL2.GL_LIGHT1);
+            gl.glEnable(GL2.GL_LIGHT0);
+        }
+    }
 }

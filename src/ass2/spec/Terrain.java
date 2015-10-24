@@ -70,10 +70,13 @@ public class Terrain {
         return mySunlight;
     }
 
+    // Sunlight is a vector pointing to the sun.
+    public float[] getSunLightHomogeneous() {
+        return new float[]{mySunlight[0], mySunlight[1], mySunlight[2], 0};
+    }
+
     public void setNigthTime(boolean nigthTime){isNightTime = nigthTime;}
     public boolean isNightTime(){return isNightTime;}
-    public boolean isSunPositionChanged(){return sunPositionChanged;}
-    public void setSunPositionChanged(boolean changed){ sunPositionChanged = changed;}
     public int getCurrentSunRotation(){return currentSunRotation;}
     public void setCurrentSunRotation(int rotation){currentSunRotation = rotation;}
 
@@ -230,8 +233,6 @@ public class Terrain {
         float[] a, b, c, d;
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white, 0);
 
-        // Specify how texture values combine with current surface color values.
-        //gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
         gl.glBindTexture(GL2.GL_TEXTURE_2D, texture.getTextureId());
         for (int z = 0 ; z < size().height-1; z++)
             for (int x = 0; x < size().width-1; x++) {
@@ -254,7 +255,6 @@ public class Terrain {
                 }gl.glEnd();
             }
         gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
-        gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
     }
 
     /**
@@ -311,25 +311,25 @@ public class Terrain {
     private void drawSun(GL2 gl){
         float[] white = {1f, 1f, 1f, 1.0f};
 
-        gl.glPushMatrix();
-        gl.glTranslated(mySunlight[0],mySunlight[1]+3,mySunlight[2]);
+        gl.glPushMatrix();{
+            gl.glTranslated(mySunlight[0], mySunlight[1] + 3, mySunlight[2]);
 
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white, 0);
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, sunTexture.getTextureId());
-        gl.glMatrixMode(GL2.GL_TEXTURE);
-        gl.glLoadIdentity();
-        gl.glScalef(5, 5, 1);
-        GLU glu = new GLU();
-        GLUquadric quad = glu.gluNewQuadric();
-        glu.gluQuadricTexture(quad, true);
-        glu.gluSphere(quad, 0.4, 15, 15);
-        glu.gluDeleteQuadric(quad);
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
-        gl.glLoadIdentity();
-        gl.glMatrixMode(GL2.GL_MODELVIEW);
-        gl.glLoadIdentity();
+            gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white, 0);
+            gl.glBindTexture(GL2.GL_TEXTURE_2D, sunTexture.getTextureId());
+            gl.glMatrixMode(GL2.GL_TEXTURE);
+            gl.glLoadIdentity();
+            gl.glScalef(5, 5, 1);
+            GLU glu = new GLU();
+            GLUquadric quad = glu.gluNewQuadric();
+            glu.gluQuadricTexture(quad, true);
+            glu.gluSphere(quad, 0.4, 15, 15);
+            glu.gluDeleteQuadric(quad);
+            gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
+            gl.glLoadIdentity();
+            gl.glMatrixMode(GL2.GL_MODELVIEW);
+            gl.glLoadIdentity();
 
-        gl.glPopMatrix();
+        }gl.glPopMatrix();
     }
 
 }

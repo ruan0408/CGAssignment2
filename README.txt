@@ -9,4 +9,4 @@ We implemented the following extensions:
 
 To change the view from 1st person <--> 3rd person, press the space bar.
 
-The file test8 was used to test the tardis object.
+The file test8 was used to test the tardis object. All test files, shaders and textures are located at res/

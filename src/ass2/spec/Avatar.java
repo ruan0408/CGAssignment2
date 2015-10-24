@@ -35,36 +35,12 @@ public class Avatar implements KeyListener{
 
     private int rotateLimbs = 0;
     private int begunMoving = 0;
+
     public Avatar(Terrain t) {
         rotation = 0;
         position = new double[]{0, 0, 0};
         terrain = t;
         isFirstPerson = true;
-    }
-
-    public double[] getPosition() {
-        return position;
-    }
-
-    public double getRotation() {
-        return rotation;
-    }
-
-    public void updateView(GL2 gl) {
-        double[] pos =  getPosition();
-        double rot = getRotation();
-
-        if (isFirstPerson) {
-            gl.glRotated(-(rot-90), 0, 1, 0);//-90 to fix initial orientation
-            gl.glTranslated(-pos[0], -(pos[1]+2*AVATAR_SIZE), -pos[2]);
-        } else {
-            GLU glu = new GLU();
-            double rad = Math.toRadians(rot+180);//+180 because the camera is behind the avatar
-            double[] cam = {pos[0]+CAM_DIST_GROUND*Math.cos(rad), pos[1]+CAM_DIST_Y, pos[2]-CAM_DIST_GROUND*Math.sin(rad)};
-            // camera looking at the horizon
-            glu.gluLookAt(cam[0] ,cam[1], cam[2], -1000*Math.cos(rad), pos[1], 1000*Math.sin(rad), 0, 1, 0);
-            draw(gl);
-        }
     }
 
     @Override
@@ -99,7 +75,6 @@ public class Avatar implements KeyListener{
                 float[] newSunPosition = MathUtils.rotatePointAroundX(ROTATION_STEP, terrain.getSunlight());
                 terrain.setSunlightDir(newSunPosition[0],newSunPosition[1],newSunPosition[2]);
                 terrain.setCurrentSunRotation((terrain.getCurrentSunRotation() +ROTATION_STEP)%360);
-                terrain.setSunPositionChanged(true);
                 break;
             case KeyEvent.VK_R:
                 newSunPosition = MathUtils.rotatePointAroundX(-ROTATION_STEP, terrain.getSunlight());
@@ -108,13 +83,49 @@ public class Avatar implements KeyListener{
                 currentRotation -= ROTATION_STEP;
                 if(currentRotation < 0) currentRotation += 360;
                 terrain.setCurrentSunRotation(currentRotation);
-                terrain.setSunPositionChanged(true);
                 break;
             default:
                 break;
         }
         //0.1 to make things clearly above ground
         position[1] = terrain.altitude(position[0], position[2])+0.1;
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {}
+
+    @Override
+    public void keyReleased(KeyEvent e) {}
+
+    public double[] getPosition() {return position;}
+
+    public float[] getPositionHomogeneousFloat() {
+        return new float[] {(float)position[0], (float)position[1], (float)position[2], 1};
+    }
+
+    public double getRotation() {
+        return rotation;
+    }
+
+    public float[] getForwardVector() {
+        return new float[]{(float)Math.sin(Math.toRadians(rotation+90)), 0, (float)Math.cos(Math.toRadians(rotation+90))};
+    }
+
+    public void updateView(GL2 gl) {
+        double[] pos =  getPosition();
+        double rot = getRotation();
+
+        if (isFirstPerson) {
+            gl.glRotated(-(rot-90), 0, 1, 0);//-90 to fix initial orientation
+            gl.glTranslated(-pos[0], -(pos[1]+2*AVATAR_SIZE), -pos[2]);
+        } else {
+            GLU glu = new GLU();
+            double rad = Math.toRadians(rot+180);//+180 because the camera is behind the avatar
+            double[] cam = {pos[0]+CAM_DIST_GROUND*Math.cos(rad), pos[1]+CAM_DIST_Y, pos[2]-CAM_DIST_GROUND*Math.sin(rad)};
+            // camera looking at the horizon
+            glu.gluLookAt(cam[0] ,cam[1], cam[2], -1000*Math.cos(rad), pos[1], 1000*Math.sin(rad), 0, 1, 0);
+            draw(gl);
+        }
     }
 
     /**
@@ -132,8 +143,7 @@ public class Avatar implements KeyListener{
             gl.glRotated(rotation, 0, 1, 0);
 
             GLUT glut = new GLUT();
-            gl.glPushMatrix();
-            {
+            gl.glPushMatrix();{
                 gl.glTranslated(0, -AVATAR_SIZE / 2, 0);
                 glut.glutSolidCube((float) AVATAR_SIZE);
                 gl.glTranslated(0,AVATAR_SIZE,0);
@@ -150,41 +160,29 @@ public class Avatar implements KeyListener{
 
             gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white, 0);
 
-            gl.glPushMatrix();
-            {
+            gl.glPushMatrix();{
                 gl.glTranslated(0, -AVATAR_SIZE, AVATAR_SIZE / 2 - 0.02);
                 gl.glRotated(90, 1, (1- rotateLimbs)*begunMoving, 0);
                 glut.glutSolidCylinder(AVATAR_SIZE / 8, AVATAR_SIZE, 15, 15);
             }gl.glPopMatrix();
 
-            gl.glPushMatrix();
-            {
+            gl.glPushMatrix();{
                 gl.glTranslated(0, -AVATAR_SIZE, -AVATAR_SIZE/2 + 0.02);
                 gl.glRotated(90, 1, begunMoving*rotateLimbs, 0);
                 glut.glutSolidCylinder(AVATAR_SIZE / 8, AVATAR_SIZE, 15, 15);
             }gl.glPopMatrix();
 
-            gl.glPushMatrix();
-            {
+            gl.glPushMatrix();{
                 gl.glTranslated(0, AVATAR_SIZE, 0.09);
                 gl.glRotated(60, 1, rotateLimbs, 0);
                 glut.glutSolidCylinder(AVATAR_SIZE / 8, AVATAR_SIZE, 15, 15);
             }gl.glPopMatrix();
 
-            gl.glPushMatrix();
-            {
+            gl.glPushMatrix();{
                 gl.glTranslated(0, AVATAR_SIZE, -0.09);
                 gl.glRotated(120, 1, 1 - rotateLimbs, 0);
                 glut.glutSolidCylinder(AVATAR_SIZE / 8, AVATAR_SIZE, 15, 15);
             }gl.glPopMatrix();
-           /* gl.glRotated(-90,1,0,0);
-            glut.glutSolidCone(AVATAR_SIZE,0.5,15,15);
-            gl.glRotated(90,1,0,0);
-            gl.glTranslated(0,0.5,0);
-            gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, red, 0);
-            glut.glutSolidSphere(AVATAR_SIZE,15,15);
-*/
-            //glut.glutSolidTeapot(AVATAR_SIZE);
         }
         gl.glPopMatrix();
         gl.glBindTexture(GL2.GL_TEXTURE_2D, bodyTexture.getTextureId());
@@ -210,10 +208,4 @@ public class Avatar implements KeyListener{
         gl.glEnd();
         gl.glEnable(GL2.GL_LIGHTING);
     }
-
-    @Override
-    public void keyTyped(KeyEvent e) {}
-
-    @Override
-    public void keyReleased(KeyEvent e) {}
 }

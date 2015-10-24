@@ -20,10 +20,12 @@ public class Shader {
     private int myID;
 
     //read file into a string
-    public Shader(int type, File sourceFile) throws IOException {
+    public Shader(int type, String filePath) throws IOException {
         myType = type;
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader( new FileInputStream(sourceFile)));
+            //BufferedReader reader = new BufferedReader(new InputStreamReader( new FileInputStream(sourceFile)));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    this.getClass().getResourceAsStream(filePath)));
             StringWriter writer = new StringWriter();
             mySource = new String[1];
             String line = reader.readLine();
@@ -73,9 +75,11 @@ public class Shader {
     }
 
     public static int initShaders(GL2 gl, String vs, String fs) throws Exception {
-        Shader vertexShader = new Shader(GL2.GL_VERTEX_SHADER, new File(vs));
+        //Shader vertexShader = new Shader(GL2.GL_VERTEX_SHADER, new File(vs));
+        Shader vertexShader = new Shader(GL2.GL_VERTEX_SHADER, vs);
         vertexShader.compile(gl);
-        Shader fragmentShader = new Shader(GL2.GL_FRAGMENT_SHADER, new File(fs));
+        //Shader fragmentShader = new Shader(GL2.GL_FRAGMENT_SHADER, new File(fs));
+        Shader fragmentShader = new Shader(GL2.GL_FRAGMENT_SHADER, fs);
         fragmentShader.compile(gl);
 
         //Each shaderProgram must have

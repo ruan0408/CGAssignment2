@@ -12,7 +12,6 @@ import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLProfile;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.nio.ByteBuffer;
 
 public class MyTexture {
@@ -29,8 +28,8 @@ public class MyTexture {
         mipMapEnabled = mipmaps;
         TextureData data = null;
         try {
-            File file = new File(fileName);
-            BufferedImage img = ImageIO.read(file); // read file into BufferedImage
+            //File file = new File(fileName);
+            BufferedImage img = ImageIO.read(this.getClass().getResource(fileName)); // read file into BufferedImage
             ImageUtil.flipImageVertically(img);
 
             //This library will result in different formats being upside down.
