@@ -124,7 +124,9 @@ public class Avatar implements KeyListener{
             double[] cam = {pos[0]+CAM_DIST_GROUND*Math.cos(rad), pos[1]+CAM_DIST_Y, pos[2]-CAM_DIST_GROUND*Math.sin(rad)};
             // camera looking at the horizon
             glu.gluLookAt(cam[0] ,cam[1], cam[2], -1000*Math.cos(rad), pos[1], 1000*Math.sin(rad), 0, 1, 0);
+            //gl.glDisable(GL2.GL_LIGHTING);
             draw(gl);
+            //gl.glEnable(GL2.GL_LIGHTING);
         }
     }
 

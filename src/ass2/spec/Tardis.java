@@ -104,19 +104,11 @@ public class Tardis {
     }
 
     public void draw(GL2 gl, boolean isNight) {
-        if (isNight) shaderProgram = shaderProgramNight;
-        else shaderProgram = shaderProgramDay;
-
-        gl.glUseProgram(shaderProgram);
-        int colorMap = gl.glGetUniformLocation(shaderProgramNight, "colorMap");
-        gl.glUniform1i(colorMap, 0);
-
         gl.glPushMatrix(); {
             gl.glTranslated(myPos[0], myPos[1], myPos[2]);
             drawTardis(gl);
         }
         gl.glPopMatrix();
-        gl.glUseProgram(0);
     }
 
     private void drawTardis(GL2 gl) {

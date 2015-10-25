@@ -242,6 +242,7 @@ public class Terrain {
                 d = new float[]{x+1, (float)getGridAltitude(x+1, z+1), z+1};
 
                 gl.glBegin(GL2.GL_TRIANGLES);{
+                    //gl.glNormal3fv(MathUtils.normal(b, d, c), 0);
                     gl.glNormal3fv(MathUtils.normal(a, b, c), 0);
                     gl.glTexCoord2d(0.0, 1.0);gl.glVertex3fv(a, 0);
                     gl.glTexCoord2d(0.0, 0.0);gl.glVertex3fv(b, 0);
@@ -275,16 +276,14 @@ public class Terrain {
         double[] normal = null;
 
         gl.glBindTexture(GL2.GL_TEXTURE_2D, Road.texture.getTextureId());
-        //gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_LINE);
         // dealing with z-fighting
         gl.glEnable(GL2.GL_POLYGON_OFFSET_FILL);
         gl.glPolygonOffset(-1f, -1f);
+
         gl.glBegin(GL2.GL_QUAD_STRIP);
         for(int i = 0; i < numPoints*road.size(); i++){
             t = i*tIncrement;
             t1 = (i+1)*tIncrement;
-            //double[] normal = road.normal(t);
-            //double[] normal1 = road.normal(t1);
             x = road.point(t)[0]; z = road.point(t)[1];
             // If not last point, estimate new normal. Otherwise, use last normal.
             if (i != numPoints*road.size()-1) {
@@ -296,16 +295,10 @@ public class Terrain {
             gl.glNormal3d(0, 1, 0);
             gl.glTexCoord2d(0,i%2);gl.glVertex3d(x+w*normal[0], y, z + w * normal[1]);
             gl.glTexCoord2d(1,i%2);gl.glVertex3d(x-w*normal[0], y, z-w*normal[1]);
-            //gl.glVertex3d(x1-w*normal1[0], y, z1-w*normal1[1]);
-            //gl.glVertex3d(x1+w*normal1[0], y, z1+w*normal1[1]);
         }
         gl.glEnd();
         gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
         gl.glDisable(GL2.GL_POLYGON_OFFSET_FILL);
-        //gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
-        //Connect to the final point - we just get the final control point
-        //double[] endPoint = road.controlPoint(road.size()*3);
-        //gl.glVertex3d(endPoint[0], altitude(endPoint[0], endPoint[1]),endPoint[1]);
     }
 
     private void drawSun(GL2 gl){
