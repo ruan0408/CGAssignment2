@@ -161,15 +161,7 @@ public class Game extends JFrame implements GLEventListener{
         gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, AMBIENT_LIGHT_NIGHT, 0);
         gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, DIFFUSE_LIGHT, 0);
 
-        // Attenuation factor
-//        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_CONSTANT_ATTENUATION, 1f);
-//        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_LINEAR_ATTENUATION, 1f/(2* SPOTLIGHT_RADIUS));
-//        gl.glLightf(GL2.GL_LIGHT1, GL2.GL_QUADRATIC_ATTENUATION, 1f/(2* SPOTLIGHT_RADIUS * SPOTLIGHT_RADIUS));
-
         gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_CUTOFF, SPOTLIGHT_CUTOFF);
-        //gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_EXPONENT, 4);
-        //gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION,new float[] {0f,0f,1f}, 0);
-        //gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION,new float[] {0,(float) avatar.getPosition()[1],(float)avatar.getPosition()[2]}, 0);
     }
 
     private void loadStaticData(GL2 gl) {
@@ -195,13 +187,13 @@ public class Game extends JFrame implements GLEventListener{
         if(myTerrain.isNightTime()) {
             float[] pos = avatar.getPositionHomogeneousFloat();
             pos[1] += 0.25;
-            //float[] bla = {0, -1, 0};
-            float[] bla = avatar.getForwardVector();
+
+            float[] spotLightDirection = avatar.getForwardVector();
             gl.glDisable(GL2.GL_LIGHT0);
             gl.glEnable(GL2.GL_LIGHT1);
             gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_CUTOFF, SPOTLIGHT_CUTOFF);
             gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, pos, 0);
-            gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION, bla, 0);
+            gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION, spotLightDirection, 0);
         } else {
             float sunAngle = myTerrain.getCurrentSunRotation();
 

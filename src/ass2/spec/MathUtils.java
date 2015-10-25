@@ -78,23 +78,4 @@ public class MathUtils {
         return new float[]{(float)u[0],(float)u[1],(float)u[2]};
     }
 
-    public static float[] rotatePointAroundY(double theta, float[] p) {
-        double rotationAngle = normaliseAngle(theta);
-        rotationAngle = Math.toRadians(rotationAngle);
-        double sin = Math.sin(rotationAngle);
-        double cos = Math.cos(rotationAngle);
-        double[][] rotationMatrix = {{cos,0,sin,0}, {0, 1, 0, 0}, {-sin, 0, cos, 0}, {0,0,0,1}};
-
-        double[] pointInHomogenousCoordinates = {p[0],p[1],p[2],1};
-        double[] u = new double[4];
-
-        for (int i = 0; i < 3; i++) {
-            u[i] = 0;
-            for (int j = 0; j < 3; j++) {
-                u[i] += rotationMatrix[i][j] * pointInHomogenousCoordinates[j];
-            }
-        }
-
-        return new float[]{(float)u[0],(float)u[1],(float)u[2]};
-    }
 }

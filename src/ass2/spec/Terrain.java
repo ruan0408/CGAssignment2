@@ -242,7 +242,6 @@ public class Terrain {
                 d = new float[]{x+1, (float)getGridAltitude(x+1, z+1), z+1};
 
                 gl.glBegin(GL2.GL_TRIANGLES);{
-                    //gl.glNormal3fv(MathUtils.normal(b, d, c), 0);
                     gl.glNormal3fv(MathUtils.normal(a, b, c), 0);
                     gl.glTexCoord2d(0.0, 1.0);gl.glVertex3fv(a, 0);
                     gl.glTexCoord2d(0.0, 0.0);gl.glVertex3fv(b, 0);

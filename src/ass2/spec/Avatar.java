@@ -136,10 +136,11 @@ public class Avatar implements KeyListener{
      */
     private void draw(GL2 gl) {
         float[] white = {1f,1f,1f,1f};
-        float[] pink = {1f,0.3f,0.56f,1f};
-        float[] yellow = {1,1,0};
+
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white, 0);
         gl.glBindTexture(GL2.GL_TEXTURE_2D, bodyTexture.getTextureId());
+
+        //draw avatar body
         gl.glPushMatrix();{
             gl.glTranslated(position[0], position[1]+2*AVATAR_SIZE, position[2]);
             gl.glRotated(rotation, 0, 1, 0);
@@ -153,33 +154,35 @@ public class Avatar implements KeyListener{
 
             }gl.glPopMatrix();
 
+            //draw avatar's head
             gl.glPushMatrix();{
                 gl.glTranslated(0,1.5*AVATAR_SIZE,0);
                 glut.glutSolidSphere(AVATAR_SIZE/2,15,15);
-                gl.glBindTexture(GL.GL_TEXTURE_2D, 0);
 
             }gl.glPopMatrix();
 
-            gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white, 0);
-
+            //draw avatar's rigth leg
             gl.glPushMatrix();{
                 gl.glTranslated(0, -AVATAR_SIZE, AVATAR_SIZE / 2 - 0.02);
                 gl.glRotated(90, 1, (1- rotateLimbs)*begunMoving, 0);
                 glut.glutSolidCylinder(AVATAR_SIZE / 8, AVATAR_SIZE, 15, 15);
             }gl.glPopMatrix();
 
+            //draws avatar'f left leg
             gl.glPushMatrix();{
                 gl.glTranslated(0, -AVATAR_SIZE, -AVATAR_SIZE/2 + 0.02);
                 gl.glRotated(90, 1, begunMoving*rotateLimbs, 0);
                 glut.glutSolidCylinder(AVATAR_SIZE / 8, AVATAR_SIZE, 15, 15);
             }gl.glPopMatrix();
 
+            //draws avatar right arm
             gl.glPushMatrix();{
                 gl.glTranslated(0, AVATAR_SIZE, 0.09);
                 gl.glRotated(60, 1, rotateLimbs, 0);
                 glut.glutSolidCylinder(AVATAR_SIZE / 8, AVATAR_SIZE, 15, 15);
             }gl.glPopMatrix();
 
+            //draws avatar left arm
             gl.glPushMatrix();{
                 gl.glTranslated(0, AVATAR_SIZE, -0.09);
                 gl.glRotated(120, 1, 1 - rotateLimbs, 0);
@@ -187,7 +190,7 @@ public class Avatar implements KeyListener{
             }gl.glPopMatrix();
         }
         gl.glPopMatrix();
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, bodyTexture.getTextureId());
+        gl.glBindTexture(GL.GL_TEXTURE_2D, 0);
     }
 
     // Debugging method

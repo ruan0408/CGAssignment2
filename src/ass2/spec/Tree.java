@@ -76,7 +76,6 @@ public class Tree {
             }
         }gl.glEnd();
 
-        //gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
         gl.glBindTexture(GL2.GL_TEXTURE_2D, trunkTexture.getTextureId());
 
         gl.glBegin(GL2.GL_QUADS);
@@ -113,14 +112,9 @@ public class Tree {
      */
     private void drawLeaves(GL2 gl) {
         float[] white = {1f, 1f, 1f, 1.0f};
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white, 0);
-        //gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
-        //gl.glTexParameterf(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
-        //gl.glTexParameterf(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
         gl.glBindTexture(GL2.GL_TEXTURE_2D, leavesTexture.getTextureId());
         gl.glMatrixMode(GL2.GL_TEXTURE);
         gl.glLoadIdentity();
-        //gl.glRotated(0,1,0,0);
         gl.glScalef(5, 5, 1);
         GLU glu = new GLU();
         GLUquadric quad = glu.gluNewQuadric();
