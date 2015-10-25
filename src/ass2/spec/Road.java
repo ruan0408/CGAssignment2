@@ -1,5 +1,6 @@
 package ass2.spec;
 
+import javax.media.opengl.GL2;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,10 +10,16 @@ import java.util.List;
  * @author malcolmr
  */
 public class Road {
+    private static final String ROAD_TEXT = "/res/asphalt.jpg";
+    private static final String ROAD_TEXT_EXT = "jpg";
 
     static MyTexture texture;
     private List<Double> myPoints;
     private double myWidth;
+
+    public static void loadStaticData(GL2 gl) {
+        texture =  new MyTexture(gl, ROAD_TEXT, ROAD_TEXT_EXT, true);
+    }
     
     /** 
      * Create a new road starting at the specified point
@@ -126,7 +133,7 @@ public class Road {
      */
     public double[] normal(double t) {
         double[] tan = tangent(t);
-        return MathUtils.normal2d(tan);
+        return Utils.normal2d(tan);
     }
 
     private double[] tangent(double t) {
@@ -178,6 +185,47 @@ public class Road {
         
         // this should never happen
         throw new IllegalArgumentException("" + i);
+    }
+
+    /**
+     * Draws this road, given the terrain.
+     * @param gl
+     * @param terrain
+     */
+    public void draw(GL2 gl, Terrain terrain) {
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, Utils.LIGHT_FULL, 0);
+        double x, z, y, x1, z1;
+        double w = width()/2;
+
+        int numPoints = 16;
+        double tIncrement = 1.0/numPoints;
+        double t, t1;
+        double[] normal = null;
+
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, Road.texture.getTextureId());
+        // dealing with z-fighting
+        gl.glEnable(GL2.GL_POLYGON_OFFSET_FILL);
+        gl.glPolygonOffset(-1f, -1f);
+
+        gl.glBegin(GL2.GL_QUAD_STRIP);
+        for(int i = 0; i < numPoints*size(); i++){
+            t = i*tIncrement;
+            t1 = (i+1)*tIncrement;
+            x = point(t)[0]; z = point(t)[1];
+            // If not last point, estimate new normal. Otherwise, use last normal.
+            if (i != numPoints*size()-1) {
+                x1 = point(t1)[0]; z1= point(t1)[1];
+                normal = Utils.normal2d(new double[]{x - x1, z - z1});
+            }
+
+            y = terrain.altitude(x, z);
+            gl.glNormal3d(0, 1, 0);
+            gl.glTexCoord2d(0,i%2);gl.glVertex3d(x+w*normal[0], y, z + w * normal[1]);
+            gl.glTexCoord2d(1,i%2);gl.glVertex3d(x-w*normal[0], y, z-w*normal[1]);
+        }
+        gl.glEnd();
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
+        gl.glDisable(GL2.GL_POLYGON_OFFSET_FILL);
     }
 
 }

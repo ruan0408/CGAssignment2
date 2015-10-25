@@ -8,15 +8,11 @@ import java.nio.FloatBuffer;
  * Created by gervasio on 18/10/15.
  */
 
-//Corresponds to the "other" objet specified by the assignment spec. It's a (crude) 3D rendering of the Doctor's
-// TARDIS (Time And Relative Dimensions In Space) from the tv show Doctor Who. Since the Doctor is a time traveler
-//there can be more than one TARDIS per map =)
-public class Tardis {
+/** Corresponds to the "other" object specified by the assignment spec. It's a (crude) 3D rendering of the Doctor's
+    TARDIS (Time And Relative Dimensions In Space) from the tv show Doctor Who. Since the Doctor is a time traveler
+    there can be more than one TARDIS per map =) */
 
-    private static final String vertexShaderDayPath = "/res/vertexShaderDay.glsl";
-    private static final String fragmentShaderDayPath = "/res/fragmentShaderDay.glsl";
-    private static final String vertexShaderNightPath = "/res/vertexShaderNight.glsl";
-    private static final String fragmentShaderNightPath = "/res/fragmentShaderNight.glsl";
+public class Tardis {
 
     private static final String TARDIS_TEXT_FRONT = "/res/tardisFront.png";
     private static final String TARDIS_TEXT_FRONT_EXT = "png";
@@ -29,14 +25,16 @@ public class Tardis {
     static MyTexture tardisTextSide;
     static MyTexture tardisTextFloor;
 
+    /** Height of the tardis*/
     private static float HEIGHT = 1.5f;
+
+    /** Side length of tardis' base square*/
     private static float BASE = 0.75f;
 
+    /** Number of bytes in one float*/
     private static int FLOAT_BYTES = 4;
-    private static int shaderProgramDay;
-    private static int shaderProgramNight;
 
-    // 4 faces, floor and ceiling
+    /** 4 faces, floor and ceiling */
     private static float[] vertexArray = {
             -BASE / 2, 0, -BASE / 2, -BASE / 2, 0, BASE / 2, -BASE / 2, HEIGHT, BASE / 2, -BASE / 2, HEIGHT, -BASE / 2,
             -BASE / 2, 0, BASE / 2, BASE / 2, 0, BASE / 2, BASE / 2, HEIGHT, BASE / 2, -BASE / 2, HEIGHT, BASE / 2,
@@ -44,49 +42,41 @@ public class Tardis {
             BASE / 2, 0, -BASE / 2, -BASE / 2, 0, -BASE / 2, -BASE / 2, HEIGHT, -BASE / 2, BASE / 2, HEIGHT, -BASE / 2,
             -BASE / 2, 0, -BASE / 2, -BASE / 2, 0, BASE / 2, BASE / 2, 0, BASE / 2, BASE / 2, 0, -BASE / 2,
             -BASE / 2, HEIGHT, -BASE / 2, -BASE / 2, HEIGHT, BASE / 2, BASE / 2, HEIGHT, BASE / 2, BASE / 2, HEIGHT, -BASE / 2};
-    // this is shared between the faces. We need these 3 lines to draw 3 sides of the polygon in one call.
+
+    /** Normals for all the vertices, face by face*/
     private static float[] normalsArray = {
             -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0,
             0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,
             1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
             0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1,
-            0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0,
+            0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0,
             0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0,
     };
+
+    /** This is shared between the faces. We need these 3 lines to be able to
+     * drawScene 3 sides of the polygon in one call. */
     private static float[] textureArray = {
             0, 0, 1, 0, 1, 1, 0, 1,
             0, 0, 1, 0, 1, 1, 0, 1,
             0, 0, 1, 0, 1, 1, 0, 1};
 
-    private static int OFFSET_N = vertexArray.length; //base offset for normals, within the VBO
-    private static int OFFSET_T = OFFSET_N + normalsArray.length; // base offset for textures, within the VBO
+    /** Base offset for normals, within the VBO */
+    private static int OFFSET_N = vertexArray.length;
+
+    /** Base offset for textures, within the VBO */
+    private static int OFFSET_T = OFFSET_N + normalsArray.length;
 
     private static FloatBuffer vertices;
     private static int vboVerticesId;
 
+    /** Tardis position, in world coordinates*/
     double[] myPos;
-    private int shaderProgram;
-
-    public Tardis(double x, double y, double z) {
-        myPos = new double[3];
-        myPos[0] = x;
-        myPos[1] = y;
-        myPos[2] = z;
-    }
 
     // this is called from Game.init()
     public static void loadStaticData(GL2 gl) {
         tardisTextFront = new MyTexture(gl, TARDIS_TEXT_FRONT, TARDIS_TEXT_FRONT_EXT, true);
         tardisTextSide = new MyTexture(gl, TARDIS_TEXT_SIDE, TARDIS_TEXT_SIDE_EXT, true);
         tardisTextFloor = new MyTexture(gl, TARDIS_TEXT_FLOOR, TARDIS_TEXT_FLOOR_EXT, true);
-
-        try {
-            shaderProgramDay = Shader.initShaders(gl, vertexShaderDayPath, fragmentShaderDayPath);
-            shaderProgramNight = Shader.initShaders(gl, vertexShaderNightPath, fragmentShaderNightPath);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
 
         vertices = FloatBuffer.allocate(vertexArray.length+normalsArray.length+textureArray.length);
         vertices.put(vertexArray);
@@ -103,42 +93,47 @@ public class Tardis {
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
     }
 
-    public void draw(GL2 gl, boolean isNight) {
+    public Tardis(double x, double y, double z) {
+        myPos = new double[3];
+        myPos[0] = x;
+        myPos[1] = y;
+        myPos[2] = z;
+    }
+
+    public void draw(GL2 gl) {
         gl.glPushMatrix(); {
             gl.glTranslated(myPos[0], myPos[1], myPos[2]);
             drawTardis(gl);
-        }
-        gl.glPopMatrix();
+        } gl.glPopMatrix();
     }
 
     private void drawTardis(GL2 gl) {
-        float white[] = {1f, 1f, 1f, 1.0f};
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white,0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, Utils.LIGHT_FULL,0);
 
         gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
         gl.glEnableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
         gl.glEnableClientState(GL2.GL_NORMAL_ARRAY);
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboVerticesId);
 
-        //front face
+        //front face, 4 vertices total
         gl.glBindTexture(GL2.GL_TEXTURE_2D, tardisTextFront.getTextureId());
         gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0);
         gl.glNormalPointer(GL.GL_FLOAT, 0, OFFSET_N*FLOAT_BYTES);
         gl.glTexCoordPointer(2, GL.GL_FLOAT, 0, OFFSET_T*FLOAT_BYTES);//float has 4 bytes
         gl.glDrawArrays(GL2.GL_QUADS, 0, 4);
 
-        //other 3 sides
+        //other 3 sides, 12 vertices total
         gl.glBindTexture(GL2.GL_TEXTURE_2D, tardisTextSide.getTextureId());
-        gl.glVertexPointer(3, GL.GL_FLOAT, 0, 4*3*4);
+        gl.glVertexPointer(3, GL.GL_FLOAT, 0, 4*3*FLOAT_BYTES); // jump 4 vertices
         gl.glNormalPointer(GL.GL_FLOAT, 0, (OFFSET_N+4*3)*FLOAT_BYTES);
-        gl.glTexCoordPointer(2, GL.GL_FLOAT, 0, OFFSET_T*FLOAT_BYTES);//float has 4 bytes
+        gl.glTexCoordPointer(2, GL.GL_FLOAT, 0, OFFSET_T*FLOAT_BYTES);
         gl.glDrawArrays(GL2.GL_QUADS, 0, 12);
 
         // floor and ceiling
         gl.glEnable(GL2.GL_POLYGON_OFFSET_FILL);
         gl.glPolygonOffset(-1f,-1f);//make tardis floor higher than ground.
         gl.glBindTexture(GL2.GL_TEXTURE_2D, tardisTextFloor.getTextureId());
-        gl.glVertexPointer(3, GL.GL_FLOAT, 0, 16*3*4);//jump 16 vertices
+        gl.glVertexPointer(3, GL.GL_FLOAT, 0, 16*3*FLOAT_BYTES);//jump 16 vertices
         gl.glNormalPointer(GL.GL_FLOAT, 0, (OFFSET_N+16*3)*FLOAT_BYTES);
         gl.glTexCoordPointer(2, GL.GL_FLOAT, 0, OFFSET_T*FLOAT_BYTES);//float has 4 bytes
         gl.glDrawArrays(GL2.GL_QUADS, 0, 8);

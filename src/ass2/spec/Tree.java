@@ -11,13 +11,28 @@ import javax.media.opengl.glu.GLUquadric;
  */
 public class Tree {
 
-    static MyTexture leavesTexture;
-    static MyTexture trunkTexture;
+    private static final String TRUNK_TEXT = "/res/trunk.jpg";
+    private static final String TRUNK_TEXT_EXT = "jpg";
+    private static final String LEAVES_TEXT = "/res/leaves.jpg";
+    private static final String LEAVES_TEXT_EXT = "jpg";
+
+    public static final int CIRCLE_SLICES = 32;
+    public static final double BASE_HEIGHT = 0;
+    public static final float[] TRUNK_DIFFUSE = Utils.LIGHT_80;
+
+    private static MyTexture leavesTexture;
+    private static MyTexture trunkTexture;
+
     private final double TRUNK_SIZE = 0.5;
     private final double TRUNK_RADIUS = 0.05;
     private final double SPHERE_RADIUS = 0.4;
 
     private double[] myPos;
+
+    public static void loadStaticData(GL2 gl) {
+        leavesTexture = new MyTexture(gl,LEAVES_TEXT,LEAVES_TEXT_EXT,true);
+        trunkTexture =  new MyTexture(gl, TRUNK_TEXT,TRUNK_TEXT_EXT,true);
+    }
 
     public Tree(double x, double y, double z) {
         myPos = new double[3];
@@ -34,57 +49,26 @@ public class Tree {
         gl.glPushMatrix();
             gl.glTranslated(myPos[0], myPos[1], myPos[2]);
             drawTrunk(gl);
-            gl.glTranslated(0, TRUNK_SIZE+SPHERE_RADIUS-0.1, 0);
+            gl.glTranslated(0, BASE_HEIGHT+TRUNK_SIZE+SPHERE_RADIUS-0.2, 0);
             drawLeaves(gl);
         gl.glPopMatrix();
     }
 
     private void drawTrunk(GL2 gl) {
-        float[] white = {1f, 1f, 1f, 1.0f};
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white, 0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, TRUNK_DIFFUSE, 0);
 
-        double y0 = 0;
-        double y1 = TRUNK_SIZE;
-        int slices = 32;
+        // draws the base of the trunk
+        drawCircleAtHeight(gl, BASE_HEIGHT, Utils.NORMAL_DOWN);
+        // draws the top of the trunk
+        drawCircleAtHeight(gl, TRUNK_SIZE, Utils.NORMAL_UP);
 
-        //lower circle
-        gl.glBegin(GL2.GL_TRIANGLE_FAN);{
-            gl.glNormal3d(0,-1,0);
-            gl.glVertex3d(0,y0,0);
-            double angleStep = 2*Math.PI/slices;
-            for (int i = 0; i <= slices ; i++){
-                double a0 = i * angleStep;
-
-                double x0 = TRUNK_RADIUS*Math.cos(a0);
-                double z0 = TRUNK_RADIUS*Math.sin(a0);
-
-                gl.glVertex3d(x0,y0,z0);
-            }
-        }gl.glEnd();
-        //upper circle
-        gl.glBegin(GL2.GL_TRIANGLE_FAN);{
-            gl.glNormal3d(0,1,0);
-            gl.glVertex3d(0,y1,0);
-            double angleStep = 2*Math.PI/slices;
-            for (int i = 0; i <= slices ; i++){
-                double a0 = i * angleStep;
-
-                double x0 = TRUNK_RADIUS*Math.cos(a0);
-                double z0 = TRUNK_RADIUS*Math.sin(a0);
-
-                gl.glVertex3d(x0, y1,z0);
-            }
-        }gl.glEnd();
-
+        // draws the body of the trunk
         gl.glBindTexture(GL2.GL_TEXTURE_2D, trunkTexture.getTextureId());
-
-        gl.glBegin(GL2.GL_QUADS);
-        {
-            double start = 0;
-            double angleStep = 2*Math.PI/slices;
-            for (int i = 0; i < slices ; i++){
+        gl.glBegin(GL2.GL_QUADS); {
+            double angleStep = 2*Math.PI/ CIRCLE_SLICES;
+            for (int i = 0; i < CIRCLE_SLICES; i++){
                 double a0 = i * angleStep;
-                double a1 = ((i+1) % slices) * angleStep;
+                double a1 = ((i+1) % CIRCLE_SLICES) * angleStep;
 
                 //Calculate vertices for the quad
                 double x0 = TRUNK_RADIUS*Math.cos(a0);
@@ -94,15 +78,14 @@ public class Tree {
                 double z1 = TRUNK_RADIUS*Math.sin(a1);
 
                 //Use the face normal for all 4 vertices in the quad.
-                gl.glNormal3d(-(y1 - y0) * (z1 - z0), 0, (y1 - y0) * (x1 - x0));
+                gl.glNormal3d(-(TRUNK_SIZE - BASE_HEIGHT) * (z1 - z0), 0, (TRUNK_SIZE - BASE_HEIGHT) * (x1 - x0));
 
-                gl.glTexCoord2d((double)i/slices, 0.0);gl.glVertex3d(x0, y0, z0);
-                gl.glTexCoord2d((double)(i+1)/slices, 0.0);gl.glVertex3d(x1, y0, z1);
-                gl.glTexCoord2d((double)(i+1)/slices, 1.0);gl.glVertex3d(x1, y1, z1);
-                gl.glTexCoord2d((double)i/slices, 1.0);gl.glVertex3d(x0, y1, z0);
+                gl.glTexCoord2d((double)i/ CIRCLE_SLICES, 0.0);gl.glVertex3d(x0, BASE_HEIGHT, z0);
+                gl.glTexCoord2d((double)(i+1)/ CIRCLE_SLICES, 0.0);gl.glVertex3d(x1, BASE_HEIGHT, z1);
+                gl.glTexCoord2d((double)(i+1)/ CIRCLE_SLICES, 1.0);gl.glVertex3d(x1, TRUNK_SIZE, z1);
+                gl.glTexCoord2d((double)i/ CIRCLE_SLICES, 1.0);gl.glVertex3d(x0, TRUNK_SIZE, z0);
             }
-        }
-        gl.glEnd();
+        } gl.glEnd();
         gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
     }
 
@@ -111,7 +94,6 @@ public class Tree {
      * @param gl
      */
     private void drawLeaves(GL2 gl) {
-        float[] white = {1f, 1f, 1f, 1.0f};
         gl.glBindTexture(GL2.GL_TEXTURE_2D, leavesTexture.getTextureId());
         gl.glMatrixMode(GL2.GL_TEXTURE);
         gl.glLoadIdentity();
@@ -124,6 +106,25 @@ public class Tree {
         gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
         gl.glLoadIdentity();
         gl.glMatrixMode(GL2.GL_MODELVIEW);
-        gl.glLoadIdentity();
+    }
+
+    private void drawCircleAtHeight(GL2 gl, double height, double[] normal) {
+        gl.glDisable(GL2.GL_TEXTURE);
+        gl.glPolygonMode(GL2.GL_FRONT, GL2.GL_FILL);
+        gl.glColor3dv(Utils.BROWN, 0);
+        gl.glBegin(GL2.GL_TRIANGLE_FAN);{
+            gl.glNormal3dv(normal, 0);
+            gl.glVertex3d(0, height, 0);
+            double angleStep = 2*Math.PI/CIRCLE_SLICES;
+            for (int i = 0; i <= CIRCLE_SLICES ; i++){
+                double a0 = i * angleStep;
+
+                double x0 = TRUNK_RADIUS*Math.cos(a0);
+                double z0 = TRUNK_RADIUS*Math.sin(a0);
+
+                gl.glVertex3d(x0, height,z0);
+            }
+        }gl.glEnd();
+        gl.glEnable(GL2.GL_TEXTURE);
     }
 }

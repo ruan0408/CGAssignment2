@@ -5,7 +5,15 @@ import java.util.Arrays;
 /**
  * Created by ruan0408 on 28/09/15.
  */
-public class MathUtils {
+public class Utils {
+
+    public static final double[]  BROWN = {0.545098, 0.270588, 0.0745098};
+
+    public static final float[]   LIGHT_FULL = {1, 1, 1, 1};
+    public static final float[]   LIGHT_80 = {0.8f, 0.8f, 0.8f, 1};
+
+    public static final double[]  NORMAL_UP = {0, 1, 0};
+    public static final double[]  NORMAL_DOWN = {0, -1, 0};
 
     // Compute the normal based on 3 vertices of the face
     public static float[] normal(float[] a, float[]b, float[] c) {

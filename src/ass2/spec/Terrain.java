@@ -1,9 +1,9 @@
 package ass2.spec;
 
 import javax.media.opengl.GL2;
-import javax.media.opengl.glu.GLU;
-import javax.media.opengl.glu.GLUquadric;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,23 +13,26 @@ import java.util.List;
  *
  * @author malcolmr
  */
-public class Terrain {
+public class Terrain implements KeyListener {
+
+    private static final String TERRAIN_TEXT = "/res/dirtGrass.jpg";
+    private static final String TERRAIN_TEXT_EXT = "jpg";
 
     static MyTexture texture;
-    static MyTexture sunTexture;
+
     private Dimension mySize;
     private double[][] myAltitude;
     private List<Tree> myTrees;
     private List<Road> myRoads;
     private List<Tardis> myTardis;
-    private float[] mySunlight;
+    private Sun sun;
 
-    Avatar myAvatar;
-    private boolean isNightTime;
-    private boolean sunPositionChanged;
-    private int currentSunRotation;
+    Avatar avatar;
+    private boolean isNight;
 
-
+    public static void loadStaticData(GL2 gl) {
+        texture = new MyTexture(gl,TERRAIN_TEXT,TERRAIN_TEXT_EXT,true);
+    }
 
     /**
      * Create a new terrain
@@ -43,61 +46,90 @@ public class Terrain {
         myTrees = new ArrayList<Tree>();
         myRoads = new ArrayList<Road>();
         myTardis = new ArrayList<Tardis>();
-        mySunlight = new float[4];
-        mySunlight[3] = 0; //directional light
-        isNightTime = false;
-        sunPositionChanged = false;
-        currentSunRotation = 0;
-    }
-    
-    public Terrain(Dimension size) {
-        this(size.width, size.height);
+        isNight = false;
     }
 
+    public Terrain(Dimension size) {this(size.width, size.height);}
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_N:
+                setIsNight(!isNight());
+                break;
+            case KeyEvent.VK_T:
+                sun.moveForward();
+                break;
+            case KeyEvent.VK_R:
+                sun.moveBackwards();
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override public void keyTyped(KeyEvent e) {}
+    @Override public void keyReleased(KeyEvent e) {}
     public Dimension size() {
         return mySize;
     }
-
     public List<Tree> trees() {
         return myTrees;
     }
-
     public List<Road> roads() {
         return myRoads;
     }
+    public float[] getSunlight() {return sun.getDirectionHomogeneous();}
 
-    public float[] getSunlight() {
-        return mySunlight;
+    /** Sunlight is a vector pointing to the sun. */
+    public float[] getSunDirectionHomogeneous() {return sun.getDirectionHomogeneous();}
+    public void setIsNight(boolean b){isNight = b;}
+    public boolean isNight(){return isNight;}
+    public float[] getSunlightColor(){return sun.getLightColor();}
+    public void setAvatar(Avatar a){
+        avatar = a;
     }
-
-    // Sunlight is a vector pointing to the sun.
-    public float[] getSunLightHomogeneous() {
-        return new float[]{mySunlight[0], mySunlight[1], mySunlight[2], 0};
-    }
-
-    public void setNigthTime(boolean nigthTime){isNightTime = nigthTime;}
-    public boolean isNightTime(){return isNightTime;}
-    public int getCurrentSunRotation(){return currentSunRotation;}
-    public void setCurrentSunRotation(int rotation){currentSunRotation = rotation;}
-
 
     /**
-     * Set the sunlight direction. 
-     * 
+     * Set the sunlight direction.
+     *
      * Note: the sun should be treated as a directional light, without a position
-     * 
+     *
      * @param dx
      * @param dy
      * @param dz
      */
-    public void setSunlightDir(float dx, float dy, float dz) {
-        mySunlight[0] = dx;
-        mySunlight[1] = dy;
-        mySunlight[2] = dz;        
+    public void setSunlightDir(float dx, float dy, float dz) {sun = new Sun(dx, dy, dz);}
+
+    /**
+     * Add a tree at the specified (x,z) point.
+     * The tree's y coordinate is calculated from the altitude of the terrain at that point.
+     *
+     * @param x
+     * @param z
+     */
+    public void addTree(double x, double z) {
+        double y = altitude(x, z);
+        Tree tree = new Tree(x, y, z);
+        myTrees.add(tree);
     }
 
-    public void setMyAvatar(Avatar avatar){
-        myAvatar = avatar;
+    public void addTardis(double x, double z){
+        double y = altitude(x,z);
+        Tardis tardis = new Tardis(x,y,z);
+        myTardis.add(tardis);
+    }
+
+
+    /**
+     * Add a road.
+     *
+     * @param width
+     * @param spine
+     */
+    public void addRoad(double width, double[] spine) {
+        Road road = new Road(width, spine);
+        myRoads.add(road);
     }
     
     /**
@@ -174,48 +206,18 @@ public class Terrain {
             r = new float[]{x1, (float)getGridAltitude(x1, z1+1), z1+1};
         }
 
-        float[] n = MathUtils.normal(p,q,r);
+        float[] n = Utils.normal(p, q, r);
         double altitude = -(n[2]*(z - p[2])+n[0]*(x-p[0]))/n[1] + p[1];
         return altitude;
     }
 
-    /**
-     * Add a tree at the specified (x,z) point. 
-     * The tree's y coordinate is calculated from the altitude of the terrain at that point.
-     * 
-     * @param x
-     * @param z
-     */
-    public void addTree(double x, double z) {
-        double y = altitude(x, z);
-        Tree tree = new Tree(x, y, z);
-        myTrees.add(tree);
-    }
-
-    public void addTardis(double x, double z){
-        double y = altitude(x,z);
-        Tardis tardis = new Tardis(x,y,z);
-        myTardis.add(tardis);
-    }
-
-
-    /**
-     * Add a road. 
-     * 
-     * @param width
-     * @param spine
-     */
-    public void addRoad(double width, double[] spine) {
-        Road road = new Road(width, spine);
-        myRoads.add(road);        
-    }
-
-    public void draw(GL2 gl) {
-        drawTerrain(gl);
+    public void drawScene(GL2 gl) {
+        draw(gl);
         for (Tree t : trees()) t.draw(gl);
-        for (Road r : roads()) drawRoad(gl, r);
-        if(!isNightTime)drawSun(gl);
-        for (Tardis t : myTardis) t.draw(gl, isNightTime);
+        for (Road r : roads()) r.draw(gl, this);
+        for (Tardis t : myTardis) t.draw(gl);
+        avatar.draw(gl);
+        if (!isNight()) sun.draw(gl);
 
     }
 
@@ -228,10 +230,9 @@ public class Terrain {
      * @param gl
      */
 
-    private void drawTerrain(GL2 gl) {
-        float[] white = {1f, 1.0f, 1f, 1.0f};
+    private void draw(GL2 gl) {
         float[] a, b, c, d;
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white, 0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, Utils.LIGHT_FULL, 0);
 
         gl.glBindTexture(GL2.GL_TEXTURE_2D, texture.getTextureId());
         for (int z = 0 ; z < size().height-1; z++)
@@ -242,12 +243,12 @@ public class Terrain {
                 d = new float[]{x+1, (float)getGridAltitude(x+1, z+1), z+1};
 
                 gl.glBegin(GL2.GL_TRIANGLES);{
-                    gl.glNormal3fv(MathUtils.normal(a, b, c), 0);
+                    gl.glNormal3fv(Utils.normal(a, b, c), 0);
                     gl.glTexCoord2d(0.0, 1.0);gl.glVertex3fv(a, 0);
                     gl.glTexCoord2d(0.0, 0.0);gl.glVertex3fv(b, 0);
                     gl.glTexCoord2d(1.0, 1.0);gl.glVertex3fv(c, 0);
 
-                    gl.glNormal3fv(MathUtils.normal(b, d, c), 0);
+                    gl.glNormal3fv(Utils.normal(b, d, c), 0);
                     gl.glTexCoord2d(0.0, 0.0);gl.glVertex3fv(b, 0);
                     gl.glTexCoord2d(1.0, 0.0);gl.glVertex3fv(d, 0);
                     gl.glTexCoord2d(1.0, 1.0);gl.glVertex3fv(c, 0);
@@ -256,72 +257,4 @@ public class Terrain {
             }
         gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
     }
-
-    /**
-     * Draws a given road.
-     * Roads don't draw themselves because they need information about the terrain.
-     * @param gl
-     * @param road
-     */
-    private void drawRoad(GL2 gl, Road road) {
-        float[] white = {1.0f, 1.0f, 1.0f, 1.0f};
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white, 0);
-        double x, z, y, x1, z1;
-        double w = road.width()/2;
-
-        int numPoints = 16;
-        double tIncrement = 1.0/numPoints;
-        double t, t1;
-        double[] normal = null;
-
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, Road.texture.getTextureId());
-        // dealing with z-fighting
-        gl.glEnable(GL2.GL_POLYGON_OFFSET_FILL);
-        gl.glPolygonOffset(-1f, -1f);
-
-        gl.glBegin(GL2.GL_QUAD_STRIP);
-        for(int i = 0; i < numPoints*road.size(); i++){
-            t = i*tIncrement;
-            t1 = (i+1)*tIncrement;
-            x = road.point(t)[0]; z = road.point(t)[1];
-            // If not last point, estimate new normal. Otherwise, use last normal.
-            if (i != numPoints*road.size()-1) {
-                x1 = road.point(t1)[0]; z1= road.point(t1)[1];
-                normal = MathUtils.normal2d(new double[]{x - x1, z - z1});
-            }
-
-            y = altitude(x,z);
-            gl.glNormal3d(0, 1, 0);
-            gl.glTexCoord2d(0,i%2);gl.glVertex3d(x+w*normal[0], y, z + w * normal[1]);
-            gl.glTexCoord2d(1,i%2);gl.glVertex3d(x-w*normal[0], y, z-w*normal[1]);
-        }
-        gl.glEnd();
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
-        gl.glDisable(GL2.GL_POLYGON_OFFSET_FILL);
-    }
-
-    private void drawSun(GL2 gl){
-        float[] white = {1f, 1f, 1f, 1.0f};
-
-        gl.glPushMatrix();{
-            gl.glTranslated(mySunlight[0], mySunlight[1] + 3, mySunlight[2]);
-
-            gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, white, 0);
-            gl.glBindTexture(GL2.GL_TEXTURE_2D, sunTexture.getTextureId());
-            gl.glMatrixMode(GL2.GL_TEXTURE);
-            gl.glLoadIdentity();
-            gl.glScalef(5, 5, 1);
-            GLU glu = new GLU();
-            GLUquadric quad = glu.gluNewQuadric();
-            glu.gluQuadricTexture(quad, true);
-            glu.gluSphere(quad, 0.4, 15, 15);
-            glu.gluDeleteQuadric(quad);
-            gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
-            gl.glLoadIdentity();
-            gl.glMatrixMode(GL2.GL_MODELVIEW);
-            gl.glLoadIdentity();
-
-        }gl.glPopMatrix();
-    }
-
 }

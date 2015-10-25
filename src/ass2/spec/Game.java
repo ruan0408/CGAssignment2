@@ -17,39 +17,28 @@ import java.io.FileNotFoundException;
  */
 public class Game extends JFrame implements GLEventListener{
 
-    private static final String TERRAIN_TEXT = "/res/dirtGrass.jpg";
-    private static final String TERRAIN_TEXT_EXT = "jpg";
-    private static final String ROAD_TEXT = "/res/asphalt.jpg";
-    private static final String ROAD_TEXT_EXT = "jpg";
-    private static final String TRUNK_TEXT = "/res/trunk.jpg";
-    private static final String TRUNK_TEXT_EXT = "jpg";
-    private static final String LEAVES_TEXT = "/res/leaves.jpg";
-    private static final String LEAVES_TEXT_EXT = "jpg";
-    private static final String SUN_TEXT = "/res/sun.jpg";
-    private static final String SUN_TEXT_EXT = "jpg";
-
     private static final String vertexShaderDayPath = "/res/vertexShaderDay.glsl";
     private static final String fragmentShaderDayPath = "/res/fragmentShaderDay.glsl";
     private static final String vertexShaderNightPath = "/res/vertexShaderNight.glsl";
     private static final String fragmentShaderNightPath = "/res/fragmentShaderNight.glsl";
 
-    private final double FOV = 60;
-    private final double NEAR_PLANE_DIST = 0.01;
-    private final double FAR_PLANE_DIST = 20;
+    private static final float[] AMBIENT_LIGHT = new float[]{1f, 1f, 1f, 1f};
+    private static final float[] DIFFUSE_LIGHT = new float[]{1f, 1f, 1f, 1f};
+    private static final float SPOTLIGHT_RADIUS = 2f;
+    private static final float[] AMBIENT_LIGHT_NIGHT = new float[]{1f, 1f, 1f, 1f};
+
+    private static final double FOV = 60;
+    private static final double NEAR_PLANE_DIST = 0.01;
+    private static final double FAR_PLANE_DIST = 20;
     private static final float SPOTLIGHT_CUTOFF = 30F;
+
+    private static int shaderProgramDay;
+    private static int shaderProgramNight;
 
     private Terrain myTerrain;
     private Avatar avatar;
-    public static final float[] DAY_LIGHT = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
-    public static final float[] TWILIGHT = new float[]{0.6f, 0.3f, 0.6f, 1.0f};
-    public static final float[] EARLY_DAY_LIGHT = new float[]{0.7f, 0.7f, 0.7f, 1.0f};
-    public static final float[] AMBIENT_LIGHT = new float[]{1f, 1f, 1f, 1f};
-    public static final float[] DIFFUSE_LIGHT = new float[]{1f, 1f, 1f, 1f};
-    public static final float SPOTLIGHT_RADIUS = 2f;
-    public static final float[] AMBIENT_LIGHT_NIGHT = new float[]{1f, 1f, 1f, 1f};
+    private Camera camera;
 
-    public static int shaderProgramDay;
-    public static int shaderProgramNight;
     private int shaderProgram;
 
     /**
@@ -68,7 +57,8 @@ public class Game extends JFrame implements GLEventListener{
         super("Assignment 2");
         myTerrain = terrain;
         avatar = new Avatar(terrain);
-        myTerrain.setMyAvatar(avatar);
+        myTerrain.setAvatar(avatar);
+        camera = new Camera(avatar);
     }
 
     /**
@@ -80,6 +70,8 @@ public class Game extends JFrame implements GLEventListener{
         GLJPanel panel = new GLJPanel();
         panel.addGLEventListener(this);
         panel.addKeyListener(avatar);
+        panel.addKeyListener(myTerrain);
+        panel.addKeyListener(camera);
 
         // Add an animator to call 'display' at 60fps
         FPSAnimator animator = new FPSAnimator(60);
@@ -117,15 +109,15 @@ public class Game extends JFrame implements GLEventListener{
     public void display(GLAutoDrawable drawable) {
 
         GL2 gl = drawable.getGL().getGL2();
-        if (myTerrain.isNightTime()) gl.glClearColor(0f, 0f, 0.1f, 0);
-        else gl.glClearColor(1,1,1,0);
+        if (myTerrain.isNight()) gl.glClearColor(0f, 0f, 0.1f, 0);
+        else gl.glClearColor(0.95f, 0.95f, 1,0);
 
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
         gl.glLoadIdentity();
 
         setShader(gl);
-        avatar.updateView(gl);
-        myTerrain.draw(gl);
+        camera.updateView(gl);
+        myTerrain.drawScene(gl);
         correctLighting(gl);
     }
 
@@ -142,7 +134,7 @@ public class Game extends JFrame implements GLEventListener{
 
     private void setShader(GL2 gl) {
 
-        if (myTerrain.isNightTime()) shaderProgram = Game.shaderProgramNight;
+        if (myTerrain.isNight()) shaderProgram = Game.shaderProgramNight;
         else shaderProgram = Game.shaderProgramDay;
 
         gl.glUseProgram(shaderProgram);
@@ -153,7 +145,7 @@ public class Game extends JFrame implements GLEventListener{
     private void setSunLightProperties(GL2 gl) {
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, AMBIENT_LIGHT, 0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, DIFFUSE_LIGHT, 0);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, myTerrain.getSunLightHomogeneous(), 0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, myTerrain.getSunDirectionHomogeneous(), 0);
     }
 
     private void setSpotlightProperties(GL2 gl) {
@@ -172,19 +164,16 @@ public class Game extends JFrame implements GLEventListener{
             e.printStackTrace();
             System.exit(1);
         }
-        Terrain.texture = new MyTexture(gl,TERRAIN_TEXT,TERRAIN_TEXT_EXT,true);
-        Road.texture =  new MyTexture(gl,ROAD_TEXT,ROAD_TEXT_EXT,true);
-        Tree.leavesTexture =  new MyTexture(gl,LEAVES_TEXT,LEAVES_TEXT_EXT,true);
-        Tree.trunkTexture =  new MyTexture(gl, TRUNK_TEXT,TRUNK_TEXT_EXT,true);
-        Terrain.sunTexture = new MyTexture(gl, SUN_TEXT, SUN_TEXT_EXT, true);
-
+        Terrain.loadStaticData(gl);
+        Road.loadStaticData(gl);
+        Tree.loadStaticData(gl);
+        Sun.loadStaticData(gl);
+        Avatar.loadStaticData(gl);
         Tardis.loadStaticData(gl);
-        Avatar.bodyTexture =  new MyTexture(gl,SUN_TEXT, SUN_TEXT_EXT,true);
     }
 
     private void correctLighting(GL2 gl) {
-        float[] lightColor;
-        if(myTerrain.isNightTime()) {
+        if(myTerrain.isNight()) {
             float[] pos = avatar.getPositionHomogeneousFloat();
             pos[1] += 1;
 
@@ -195,17 +184,10 @@ public class Game extends JFrame implements GLEventListener{
             gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, pos, 0);
             gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION, spotLightDirection, 0);
         } else {
-            float sunAngle = myTerrain.getCurrentSunRotation();
-
-            if(sunAngle >= 0 && sunAngle <= 120) lightColor = DAY_LIGHT;
-            else if(sunAngle > 120 && sunAngle <= 240) lightColor = TWILIGHT;
-            else lightColor = EARLY_DAY_LIGHT;
-
-            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, myTerrain.getSunLightHomogeneous(), 0);
-            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, lightColor, 0);
-
-            gl.glDisable(GL2.GL_LIGHT1);
-            gl.glEnable(GL2.GL_LIGHT0);
+            gl.glDisable(GL2.GL_LIGHT1);    // Disable spotlight
+            gl.glEnable(GL2.GL_LIGHT0);     // Enable sun
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, myTerrain.getSunDirectionHomogeneous(), 0);
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, myTerrain.getSunlightColor(), 0);
         }
     }
 }
