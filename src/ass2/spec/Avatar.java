@@ -107,8 +107,8 @@ public class Avatar implements KeyListener{
         return rotation;
     }
 
-    public float[] getForwardVector() {
-        return new float[]{(float)Math.sin(Math.toRadians(rotation+90)), 0, (float)Math.cos(Math.toRadians(rotation+90))};
+    public float[] getSpotlightVector() {
+        return new float[]{(float)Math.sin(Math.toRadians(rotation+90)), -0.5f, (float)Math.cos(Math.toRadians(rotation+90))};
     }
 
     public void updateView(GL2 gl) {
@@ -117,16 +117,14 @@ public class Avatar implements KeyListener{
 
         if (isFirstPerson) {
             gl.glRotated(-(rot-90), 0, 1, 0);//-90 to fix initial orientation
-            gl.glTranslated(-pos[0], -(pos[1]+2*AVATAR_SIZE), -pos[2]);
+            gl.glTranslated(-pos[0], -(pos[1]+2*AVATAR_SIZE+0.5), -pos[2]);
         } else {
             GLU glu = new GLU();
             double rad = Math.toRadians(rot+180);//+180 because the camera is behind the avatar
             double[] cam = {pos[0]+CAM_DIST_GROUND*Math.cos(rad), pos[1]+CAM_DIST_Y, pos[2]-CAM_DIST_GROUND*Math.sin(rad)};
             // camera looking at the horizon
             glu.gluLookAt(cam[0] ,cam[1], cam[2], -1000*Math.cos(rad), pos[1], 1000*Math.sin(rad), 0, 1, 0);
-            //gl.glDisable(GL2.GL_LIGHTING);
             draw(gl);
-            //gl.glEnable(GL2.GL_LIGHTING);
         }
     }
 

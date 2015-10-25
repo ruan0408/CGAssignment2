@@ -36,7 +36,7 @@ public class Game extends JFrame implements GLEventListener{
     private final double FOV = 60;
     private final double NEAR_PLANE_DIST = 0.01;
     private final double FAR_PLANE_DIST = 20;
-    private static final float SPOTLIGHT_CUTOFF = 25F;
+    private static final float SPOTLIGHT_CUTOFF = 30F;
 
     private Terrain myTerrain;
     private Avatar avatar;
@@ -186,9 +186,9 @@ public class Game extends JFrame implements GLEventListener{
         float[] lightColor;
         if(myTerrain.isNightTime()) {
             float[] pos = avatar.getPositionHomogeneousFloat();
-            pos[1] += 0.25;
+            pos[1] += 1;
 
-            float[] spotLightDirection = avatar.getForwardVector();
+            float[] spotLightDirection = avatar.getSpotlightVector();
             gl.glDisable(GL2.GL_LIGHT0);
             gl.glEnable(GL2.GL_LIGHT1);
             gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_CUTOFF, SPOTLIGHT_CUTOFF);
