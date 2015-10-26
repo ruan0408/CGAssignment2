@@ -195,6 +195,7 @@ public class Road {
     public void draw(GL2 gl, Terrain terrain) {
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, Utils.LIGHT_FULL, 0);
         double x, z, y, x1, z1;
+        x = z = y = x1 = z1 = 0;
         double w = width()/2;
 
         int numPoints = 16;
@@ -214,15 +215,23 @@ public class Road {
             x = point(t)[0]; z = point(t)[1];
             // If not last point, estimate new normal. Otherwise, use last normal.
             if (i != numPoints*size()-1) {
-                x1 = point(t1)[0]; z1= point(t1)[1];
-                normal = Utils.normal2d(new double[]{x - x1, z - z1});
+                x1 = point(t1)[0];
+                z1 = point(t1)[1];
+            } else { // use last point to calculate normal
+                x1 = controlPoint(size()*3)[0];
+                z1 = controlPoint(size()*3)[1];
             }
+            normal = Utils.normal2d(new double[]{x - x1, z - z1});
 
             y = terrain.altitude(x, z);
             gl.glNormal3d(0, 1, 0);
-            gl.glTexCoord2d(0,i%2);gl.glVertex3d(x+w*normal[0], y, z + w * normal[1]);
+            gl.glTexCoord2d(0,i%2);gl.glVertex3d(x+w* normal[0], y, z + w * normal[1]);
             gl.glTexCoord2d(1,i%2);gl.glVertex3d(x-w*normal[0], y, z-w*normal[1]);
         }
+        // Adds final point to the road.
+        gl.glTexCoord2d(0,0);gl.glVertex3d(x1+w*normal[0], y, z1 + w * normal[1]);
+        gl.glTexCoord2d(1,0);gl.glVertex3d(x1-w*normal[0], y, z1-w*normal[1]);
+
         gl.glEnd();
         gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
         gl.glDisable(GL2.GL_POLYGON_OFFSET_FILL);
