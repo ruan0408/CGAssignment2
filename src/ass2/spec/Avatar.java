@@ -14,15 +14,15 @@ public class Avatar implements KeyListener{
 
     private static final String AVATAR_TEXT = "/res/sun.jpg";
     private static final String AVATAR_TEXT_EXT = "jpg";
+    private static final int ANGLE_SHIFT = -90;
 
-    private final double ANGLE_STEP = 5;    // 5 degrees per key stroke
+    private final double ANGLE_STEP = 10;    // 5 degrees per key stroke
     private final double MOV_STEP = 0.4;    // 0.4 units per key stroke
 
     private final float HEAD_RADIUS = 0.05f;
     private final float LIMB_SIZE = 0.20f;
     private final float BODY_SIZE = 0.20f;
     private final float SIZE = LIMB_SIZE + BODY_SIZE + 2*HEAD_RADIUS;
-    
 
     public static MyTexture texture;
     private double[] position;  //absolute position of avatar, in world coordinates.
@@ -44,24 +44,25 @@ public class Avatar implements KeyListener{
 
     @Override
     public void keyPressed(KeyEvent e) {
+        double rotRad = rotationRadians();
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:
-                position[0] += MOV_STEP * Math.cos(Math.toRadians(rotation));
-                position[2] += -MOV_STEP * Math.sin(Math.toRadians(rotation));
+                position[0] += MOV_STEP * Math.sin(rotRad);
+                position[2] += MOV_STEP * Math.cos(rotRad);
                 rotateLimbs = 1 - rotateLimbs;
                 if(begunMoving == 0) begunMoving = 1;
                 break;
             case KeyEvent.VK_DOWN:
-                position[0] += -MOV_STEP * Math.cos(Math.toRadians(rotation));
-                position[2] += MOV_STEP * Math.sin(Math.toRadians(rotation));
+                position[0] += -MOV_STEP * Math.sin(rotRad);
+                position[2] += -MOV_STEP * Math.cos(rotRad);
                 rotateLimbs = 1 - rotateLimbs;
                 if(begunMoving == 0) begunMoving = 1;
                 break;
             case KeyEvent.VK_LEFT:
-                rotation = Utils.normaliseAngle(rotation + ANGLE_STEP);
+                setRotation(rotation + ANGLE_STEP);
                 break;
             case KeyEvent.VK_RIGHT:
-                rotation = Utils.normaliseAngle(rotation - ANGLE_STEP);
+                setRotation(rotation - ANGLE_STEP);
                 break;
             default:
                 break;
@@ -81,13 +82,13 @@ public class Avatar implements KeyListener{
         return new float[] {(float)position[0], (float)position[1], (float)position[2], 1};
     }
 
-    public double getRotation() {
-        return rotation;
-    }
+    public double rotation() {return rotation;}
+    public void setRotation(double angle) {rotation = Utils.normaliseAngle(angle);}
+    public double rotationRadians() {return Math.toRadians(rotation);}
     public float size() {return SIZE;}
 
     public float[] getSpotlightVector() {
-        return new float[]{(float)Math.sin(Math.toRadians(rotation+90)), -0.5f, (float)Math.cos(Math.toRadians(rotation+90))};
+        return new float[]{(float)Math.sin(rotationRadians()), -0.5f, (float)Math.cos(rotationRadians())};
     }
 
     /**
@@ -100,7 +101,7 @@ public class Avatar implements KeyListener{
 
         gl.glPushMatrix();{
             gl.glTranslated(position[0], position[1], position[2]);
-            gl.glRotated(rotation, 0, 1, 0);
+            gl.glRotated(rotation()+ANGLE_SHIFT, 0, 1, 0);
 
             // Rigth leg
             gl.glTranslated(0, LIMB_SIZE, BODY_SIZE/4 -0.02);

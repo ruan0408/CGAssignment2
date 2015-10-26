@@ -30,7 +30,7 @@ public class Game extends JFrame implements GLEventListener{
     private static final double FOV = 60;
     private static final double NEAR_PLANE_DIST = 0.01;
     private static final double FAR_PLANE_DIST = 20;
-    private static final float SPOTLIGHT_CUTOFF = 30F;
+    private static final float SPOTLIGHT_CUTOFF = 25F;
 
     private static int shaderProgramDay;
     private static int shaderProgramNight;
